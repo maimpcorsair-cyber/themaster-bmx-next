@@ -26,16 +26,15 @@ export default function ChatWidget() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5002/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          message: userMessage,
-          history: messages.map(m => [m.role === 'user' ? m.content : '', m.role === 'assistant' ? m.content : ''])
+          messages: [...messages, { role: 'user', content: userMessage }]
         }),
       });
       const data = await res.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'ขอโทษครับ AI ตอบไม่ได้ตอนนี้ ลองใหม่นะครับ' }]);
     }
