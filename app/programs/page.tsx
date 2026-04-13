@@ -7,12 +7,13 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { db, collection, addDoc, getDocs } from '@/lib/firebase';
 import { initFirebase } from '@/lib/firebase';
 
-const programs = [
+const groupPrograms = [
   {
     id: 'little',
     age: '4-6 ปี',
     name: 'Little Rider',
-    desc: 'เริ่มต้นเรียนรู้การทรงตัว + ความสนุก',
+    desc: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    type: 'group',
     features: [
       'สอนทรงตัวบนจักรยาน',
       'ฝึกเบรกอย่างปลอดภัย',
@@ -32,7 +33,8 @@ const programs = [
     id: 'junior',
     age: '7-12 ปี',
     name: 'Junior Rider',
-    desc: 'พัฒนาทักษะ + เทคนิคต่างๆ',
+    desc: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    type: 'group',
     features: [
       'ฝึก Bunny Hop',
       'เทคนิคการบังคับ',
@@ -52,7 +54,8 @@ const programs = [
     id: 'competitor',
     age: '13+ ปี',
     name: 'Competitor',
-    desc: 'ฝึกแข่งขันระดับทีมชาติ',
+    desc: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    type: 'group',
     features: [
       'ฝึกแข่งขันทุกสัปดาห์',
       'เทคนิคขั้นสูง',
@@ -66,6 +69,73 @@ const programs = [
       { icon: '👕', text: 'ชุดแข่ง/ราธเสื้อ Team' },
     ],
     price: 2500,
+    popular: false,
+  },
+];
+
+const privatePrograms = [
+  {
+    id: 'private-basic',
+    name: 'Private Basic',
+    desc: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    type: 'private',
+    tier: '🥉',
+    features: [
+      'เรียนส่วนตัว 1 ต่อ 1',
+      'เรียนได้ 8 ครั้ง/เดือน',
+      'ปรับความเร็วตามผู้เรียน',
+      'เน้นพื้นฐานแน่น',
+    ],
+    equipment: [
+      { icon: '🪖', text: 'หมวกกันน็อคมาตรฐาน' },
+      { icon: '🧤', text: 'ถุงมือกีฬา' },
+      { icon: '🦾', text: 'เสื่อเข่า/แขน (แนะนำ)' },
+    ],
+    pricePerHour: 800,
+    priceMonthly: 4800,
+    popular: false,
+  },
+  {
+    id: 'private-pro',
+    name: 'Private Pro',
+    desc: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    type: 'private',
+    tier: '🥈',
+    features: [
+      'เรียนส่วนตัว 1 ต่อ 1',
+      'เรียนได้ 8 ครั้ง/เดือน',
+      'โค้ชมีประสบการณ์สูง',
+      'เน้นเทคนิคขั้นสูง',
+    ],
+    equipment: [
+      { icon: '🪖', text: 'หมวก Full Face' },
+      { icon: '🦾', text: 'ชุดเสื่อเข่า/แขน/ข้อมือ' },
+      { icon: '👕', text: 'ชุดแข่ง (แนะนำ)' },
+    ],
+    pricePerHour: 1000,
+    priceMonthly: 6000,
+    popular: true,
+  },
+  {
+    id: 'private-elite',
+    name: 'Private Elite',
+    desc: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    type: 'private',
+    tier: '🥇',
+    features: [
+      'เรียนส่วนตัว 1 ต่อ 1',
+      'เรียนได้ 8 ครั้ง/เดือน',
+      'โค้ชระดับทีมชาติ',
+      'เตรียมแข่งขันระดับประเทศ',
+    ],
+    equipment: [
+      { icon: '🪖', text: 'หมวก Full Face ระดับแข่ง' },
+      { icon: '🦾', text: 'ชุดเสื่อระดับแข่งขัน' },
+      { icon: '👕', text: 'ชุดแข่ง Team' },
+      { icon: '🏅', text: 'เสื้อราธเสื้อ Academy' },
+    ],
+    pricePerHour: 1500,
+    priceMonthly: 9000,
     popular: false,
   },
 ];
@@ -98,7 +168,7 @@ interface ScheduleItem {
 
 export default function ProgramsPage() {
   const { t, lang } = useLanguage();
-  const [selectedProgram, setSelectedProgram] = useState<typeof programs[0] | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<(typeof groupPrograms[0] | typeof privatePrograms[0]) | null>(null);
   const [showRegister, setShowRegister] = useState(false);
   const [formData, setFormData] = useState({
     parentName: '',
@@ -144,7 +214,7 @@ export default function ProgramsPage() {
     }
   };
 
-  const openRegister = (program: typeof programs[0]) => {
+  const openRegister = (program: typeof groupPrograms[0] | typeof privatePrograms[0]) => {
     setSelectedProgram(program);
     setFormData({
       parentName: '',
@@ -178,7 +248,7 @@ export default function ProgramsPage() {
     try {
       await addDoc(collection(db, 'course_registrations'), {
         ...formData,
-        price: selectedProgram?.price,
+        price: selectedProgram ? ('price' in selectedProgram ? selectedProgram.price : selectedProgram.priceMonthly) : 0,
         createdAt: new Date().toISOString(),
         status: 'new',
       });
@@ -210,11 +280,18 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* Programs */}
+      {/* Group Programs */}
       <section className="py-12 px-6">
         <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-8">
+            <span className="text-3xl">👥</span>
+            <div>
+              <h2 className="text-2xl font-black">คอร์สกลุ่ม</h2>
+              <p className="text-gray-500 text-sm">เรียนพร้อมกันสูงสุด 20 คน/คลาส</p>
+            </div>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {programs.map((program) => (
+            {groupPrograms.map((program) => (
               <div 
                 key={program.id}
                 className={`bg-black border ${program.popular ? 'border-red-600' : 'border-gray-800'} transition-all p-6 flex flex-col`}
@@ -262,6 +339,75 @@ export default function ProgramsPage() {
                   </p>
                   <div className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded mt-3 text-center transition-colors">
                     ลงทะเบียนเรียน
+                  </div>
+                  <p className="text-center text-gray-500 text-xs mt-2">กดเพื่อเลือกเวลาและชำระเงิน</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Private Programs */}
+      <section className="py-12 px-6 bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-8">
+            <span className="text-3xl">🎓</span>
+            <div>
+              <h2 className="text-2xl font-black">คอร์สเดี่ยว (Private)</h2>
+              <p className="text-gray-500 text-sm">เรียน 1 ต่อ 1 กับโค้ช ปรับความเร็วได้ตามต้องการ</p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {privatePrograms.map((program) => (
+              <div 
+                key={program.id}
+                className={`bg-black border ${program.popular ? 'border-yellow-500' : 'border-gray-800'} transition-all p-6 flex flex-col`}
+              >
+                {program.popular && (
+                  <span className="bg-yellow-500 text-black text-xs font-bold px-3 py-1 self-start mb-3">
+                    แนะนำ
+                  </span>
+                )}
+                <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">{program.tier}</span>
+                <h3 className={`text-xl font-bold mt-2 mb-2 ${program.popular ? 'text-yellow-500' : ''}`}>{program.name}</h3>
+                <p className="text-gray-500 text-sm mb-4">{program.desc}</p>
+                
+                {/* Features */}
+                <ul className="space-y-2 mb-6">
+                  {program.features.map((feature, i) => (
+                    <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
+                      <span className="text-green-500">✓</span> {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Equipment */}
+                <div className="border-t border-gray-800 pt-4 mb-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
+                    {lang === 'th' ? 'อุปกรณ์ที่ใช้' : 'Equipment Used'}
+                  </p>
+                  <ul className="space-y-2">
+                    {program.equipment.map((item, i) => (
+                      <li key={i} className="text-gray-400 text-sm flex items-center gap-2">
+                        <span>{item.icon}</span> {item.text}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Price & Register */}
+                <div 
+                  onClick={() => openRegister(program)}
+                  className="mt-auto pt-4 border-t border-gray-800 cursor-pointer hover:bg-gray-900 rounded-b-xl -mx-6 px-6 pb-6 transition-colors"
+                >
+                  <p className={`text-2xl font-black ${program.popular ? 'text-yellow-500' : ''}`}>
+                    ฿{program.priceMonthly.toLocaleString()}
+                    <span className="text-sm font-normal text-gray-500">/เดือน</span>
+                  </p>
+                  <p className="text-gray-500 text-xs mt-1">฿{program.pricePerHour}/ชั่วโมง</p>
+                  <div className="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold py-3 rounded mt-3 text-center transition-colors">
+                    ลงทะเบียนเรียนเดี่ยว
                   </div>
                   <p className="text-center text-gray-500 text-xs mt-2">กดเพื่อเลือกเวลาและชำระเงิน</p>
                 </div>
@@ -470,13 +616,21 @@ export default function ProgramsPage() {
                 <div className="bg-black rounded-xl p-4 mb-6 border border-gray-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-xs text-gray-500 uppercase">{selectedProgram.age}</span>
-                      <h3 className="text-xl font-bold text-red-500">{selectedProgram.name}</h3>
+                      {'age' in selectedProgram && (
+                        <span className="text-xs text-gray-500 uppercase">{selectedProgram.age}</span>
+                      )}
+                      {'tier' in selectedProgram && (
+                        <span className="text-xs text-yellow-500 uppercase font-bold">{selectedProgram.tier}</span>
+                      )}
+                      <h3 className={`text-xl font-bold ${'tier' in selectedProgram ? 'text-yellow-500' : 'text-red-500'}`}>{selectedProgram.name}</h3>
                       <p className="text-gray-400 text-sm">{selectedProgram.desc}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-black">฿{selectedProgram.price.toLocaleString()}</p>
+                      <p className="text-2xl font-black">฿{'price' in selectedProgram ? selectedProgram.price.toLocaleString() : selectedProgram.priceMonthly.toLocaleString()}</p>
                       <p className="text-xs text-gray-500">/เดือน</p>
+                      {'pricePerHour' in selectedProgram && (
+                        <p className="text-xs text-gray-400">฿{selectedProgram.pricePerHour}/ชม.</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -624,11 +778,11 @@ export default function ProgramsPage() {
                     <h4 className="text-sm font-bold text-red-500 mb-3 uppercase">💳 สรุปการชำระเงิน</h4>
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-gray-400">คอร์ส {selectedProgram.name}</span>
-                      <span className="font-bold">฿{selectedProgram.price.toLocaleString()}</span>
+                      <span className="font-bold">฿{'price' in selectedProgram ? selectedProgram.price.toLocaleString() : selectedProgram.priceMonthly.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-700">
                       <span className="text-white font-bold">รวม</span>
-                      <span className="text-xl font-black text-red-500">฿{selectedProgram.price.toLocaleString()}</span>
+                      <span className="text-xl font-black text-red-500">฿{'price' in selectedProgram ? selectedProgram.price.toLocaleString() : selectedProgram.priceMonthly.toLocaleString()}</span>
                     </div>
                     <div className="space-y-2 text-sm">
                       <p className="text-gray-400">ช่องทางชำระเงิน:</p>
