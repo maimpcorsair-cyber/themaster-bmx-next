@@ -1,0 +1,747 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, Product, Promotion } from '@/lib/firebase';
+
+interface Location {
+  id: string;
+  name: string;
+  nameEn: string;
+  address: string;
+  addressEn: string;
+  mapUrl: string;
+  days: string;
+  daysEn: string;
+  image: string;
+}
+
+const categories = [
+  { key: 'bike', label: 'จักรยาน' },
+  { key: 'helmets', label: 'หมวก' },
+  { key: 'gloves', label: 'ถุงมือ' },
+  { key: 'knee-pads', label: 'เสื่อเข่า' },
+  { key: 'elbow-pads', label: 'เสื่อข้อศอก' },
+  { key: 'shin-guards', label: 'เสื่อน่อง' },
+  { key: 'body-armor', label: 'เกราะ' },
+  { key: 'neck-brace', label: 'ปกคอ' },
+];
+
+const defaultProducts: Product[] = [
+  { id: '1', name: 'Kink Carve 16"', brand: 'KINK', price: 7499, category: 'bike', stock: 5, image: '/bikes_kink_carve_16.jpg', description: 'จักรยาน BMX สำหรับเด็ก', rating: 5.0, reviews: 12 },
+  { id: '2', name: 'Kink Kicker 18"', brand: 'KINK', price: 8999, category: 'bike', stock: 3, image: '/bikes_kink_kicker_18.jpg', description: 'จักรยาน BMX สำหรับเด็กโต', rating: 5.0, reviews: 8 },
+  { id: '101', name: 'Pro-Tec Street Helmet', brand: 'PRO-TEC', price: 2500, category: 'helmets', stock: 10, image: '/gear_helmet_protec.jpg', description: 'หมวกกันน็อคมาตรฐาน', rating: 4.9, reviews: 32 },
+  { id: '102', name: 'Pro-Tec Gloves', brand: 'PRO-TEC', price: 450, category: 'gloves', stock: 25, image: '/gear_gloves_protec.jpg', description: 'ถุงมือปกป้องฝ่ามือ', rating: 4.7, reviews: 45 },
+];
+
+const defaultLocations: Location[] = [
+  { id: 'rush', name: 'Rush Bike Shop', nameEn: 'Rush Bike Shop', address: '999 หมู่ 4 ตำบลบางแค อำเภอบางแค กรุงเทพฯ 10160', addressEn: '999 Moo 4, Bang Khae, Bangkok 10160', mapUrl: 'https://maps.google.com/?q=13.7231,100.4194', days: 'จันทร์-ศุกร์', daysEn: 'Mon-Fri', image: '/schedule_rush.jpg' },
+  { id: 'bang', name: 'The Master BMX @ Bang', nameEn: 'The Master BMX @ Bang', address: '888 หมู่ 5 ตำบลบางกะอี อำเภอคลองหลวง ปทุมธานี 12120', addressEn: '888 Moo 5, Bang Klate, Pathum Thani 12120', mapUrl: 'https://maps.google.com/?q=14.0201,100.6134', days: 'เสาร์-อาทิตย์', daysEn: 'Sat-Sun', image: '/schedule_bang.jpg' },
+  { id: 'pattaya', name: 'The Master BMX @ Pattaya', nameEn: 'The Master BMX @ Pattaya', address: '777 หมู่ 3 ตำบลนาเกลือ อำเภอบางละมุง พัทยา 20150', addressEn: '777 Moo 3, Na Klua, Pattaya 20150', mapUrl: 'https://maps.google.com/?q=12.9214,100.8824', days: 'เสาร์-อาทิตย์', daysEn: 'Sat-Sun', image: '/schedule_pattaya.jpg' },
+];
+
+export default function AdminDashboardPage() {
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Location form state
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [locationForm, setLocationForm] = useState({
+    name: '',
+    nameEn: '',
+    address: '',
+    addressEn: '',
+    mapUrl: '',
+    days: '',
+    daysEn: '',
+    image: '',
+  });
+  
+  // Form state
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productForm, setProductForm] = useState({
+    name: '',
+    brand: '',
+    price: 0,
+    category: 'bike',
+    stock: 0,
+    image: '',
+    description: '',
+    badge: '',
+  });
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('admin_logged_in');
+    if (!loggedIn) {
+      router.push('/admin/login');
+    } else {
+      setIsLoggedIn(true);
+      fetchData();
+    }
+  }, [router]);
+
+  const fetchData = async () => {
+    try {
+      const productsSnapshot = await getDocs(collection(db, 'products'));
+      if (!productsSnapshot.empty) {
+        const productsData = productsSnapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id,
+        })) as Product[];
+        setProducts(productsData);
+      } else {
+        // Use default data if Firebase is empty
+        setProducts(defaultProducts);
+      }
+
+      const promosSnapshot = await getDocs(collection(db, 'promotions'));
+      if (!promosSnapshot.empty) {
+        setPromotions(promosSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Promotion[]);
+      }
+
+      const locationsSnapshot = await getDocs(collection(db, 'locations'));
+      if (!locationsSnapshot.empty) {
+        setLocations(locationsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Location[]);
+      } else {
+        setLocations(defaultLocations);
+      }
+    } catch (error) {
+      console.log('Using default data - Firebase error:', error);
+      setProducts(defaultProducts);
+      setLocations(defaultLocations);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_logged_in');
+    router.push('/admin/login');
+  };
+
+  const resetForm = () => {
+    setProductForm({
+      name: '',
+      brand: '',
+      price: 0,
+      category: 'bike',
+      stock: 0,
+      image: '',
+      description: '',
+      badge: '',
+    });
+    setEditingProduct(null);
+  };
+
+  const handleSaveProduct = async () => {
+    try {
+      if (editingProduct?.id) {
+        await updateDoc(doc(db, 'products', editingProduct.id), productForm);
+      } else {
+        await addDoc(collection(db, 'products'), {
+          ...productForm,
+          rating: 4.5,
+          reviews: 0,
+        });
+      }
+      setShowProductForm(false);
+      resetForm();
+      fetchData();
+    } catch (error) {
+      alert('Error saving product');
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm('ลบสินค้านี้?')) return;
+    try {
+      await deleteDoc(doc(db, 'products', id));
+      fetchData();
+    } catch (error) {
+      setProducts(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
+  const handleUpdateStock = async (id: string, newStock: number) => {
+    try {
+      await updateDoc(doc(db, 'products', id), { stock: newStock });
+      fetchData();
+    } catch (error) {
+      setProducts(prev => prev.map(p => p.id === id ? { ...p, stock: newStock } : p));
+    }
+  };
+
+  // Location handlers
+  const handleSaveLocation = async () => {
+    try {
+      if (editingLocation?.id) {
+        await updateDoc(doc(db, 'locations', editingLocation.id), locationForm);
+      } else {
+        await addDoc(collection(db, 'locations'), locationForm);
+      }
+      setEditingLocation(null);
+      setLocationForm({ name: '', nameEn: '', address: '', addressEn: '', mapUrl: '', days: '', daysEn: '', image: '' });
+      fetchData();
+    } catch (error) {
+      console.log('Error saving location');
+    }
+  };
+
+  const handleDeleteLocation = async (id: string) => {
+    if (!confirm('ลบสถานที่นี้?')) return;
+    try {
+      await deleteDoc(doc(db, 'locations', id));
+      fetchData();
+    } catch (error) {
+      setLocations(prev => prev.filter(l => l.id !== id));
+    }
+  };
+
+  const resetLocationForm = () => {
+    setLocationForm({ name: '', nameEn: '', address: '', addressEn: '', mapUrl: '', days: '', daysEn: '', image: '' });
+    setEditingLocation(null);
+  };
+
+  const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
+  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+  const lowStock = products.filter(p => p.stock <= 2).length;
+
+  if (!isLoggedIn) return null;
+
+  return (
+    <div className="min-h-screen bg-gray-100 text-gray-900">
+      {/* Header */}
+      <header className="bg-gray-900 text-white px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-black uppercase">The Master BMX Admin</h1>
+            <p className="text-gray-500 text-sm">Shop Management System</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/shop" target="_blank" className="text-gray-400 hover:text-white text-sm">
+              🛒 ร้านค้า
+            </Link>
+            <Link href="/schedule" target="_blank" className="text-gray-400 hover:text-white text-sm">
+              📅 ตารางเรียน
+            </Link>
+            <Link href="/programs" target="_blank" className="text-gray-400 hover:text-white text-sm">
+              📚 คอร์สเรียน
+            </Link>
+            <Link href="/" target="_blank" className="text-gray-400 hover:text-white text-sm">
+              🌐 เว็ปหลัก
+            </Link>
+            <button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-bold">
+              ออก
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Dashboard Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <p className="text-gray-500 text-sm uppercase tracking-wider mb-1">สินค้าทั้งหมด</p>
+            <p className="text-3xl font-black">{products.length}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <p className="text-gray-500 text-sm uppercase tracking-wider mb-1">มูลค่าสินค้า</p>
+            <p className="text-3xl font-black">฿{(totalValue / 1000).toFixed(0)}K</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <p className="text-gray-500 text-sm uppercase tracking-wider mb-1">Stock รวม</p>
+            <p className="text-3xl font-black">{totalStock}</p>
+          </div>
+          <div className="bg-orange-100 rounded-xl shadow-sm p-6">
+            <p className="text-orange-600 text-sm uppercase tracking-wider mb-1">Stock ใกล้หมด</p>
+            <p className="text-3xl font-black text-orange-600">{lowStock}</p>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+          <div className="flex border-b">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'dashboard' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              📊 Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'products' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              📦 สินค้า ({products.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('locations')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'locations' || activeTab === 'add-location' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              📍 สถานที่ ({locations.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('promo')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'promo' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              🎟️ โปรโมชั่น
+            </button>
+          </div>
+
+          {/* Products Tab */}
+          {activeTab === 'products' && (
+            <div className="p-6">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b text-left">
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">สินค้า</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">ราคา</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">Stock</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">หมวด</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-b hover:bg-gray-50">
+                        <td className="py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden">
+                              {product.image && (
+                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-bold">{product.name}</p>
+                              <p className="text-gray-500 text-sm">{product.brand}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 font-bold">฿{product.price.toLocaleString()}</td>
+                        <td className="py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => product.id && handleUpdateStock(product.id, product.stock - 1)}
+                              className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded font-bold"
+                            >
+                              -
+                            </button>
+                            <span className={`font-bold w-12 text-center ${
+                              product.stock <= 2 ? 'text-red-600' : 'text-green-600'
+                            }`}>
+                              {product.stock}
+                            </span>
+                            <button
+                              onClick={() => product.id && handleUpdateStock(product.id, product.stock + 1)}
+                              className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded font-bold"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-4">
+                          <span className="bg-gray-200 px-3 py-1 rounded text-xs font-bold">
+                            {categories.find(c => c.key === product.category)?.label || product.category}
+                          </span>
+                        </td>
+                        <td className="py-4">
+                          <button
+                            onClick={() => {
+                              setEditingProduct(product);
+                              setProductForm({
+                                name: product.name,
+                                brand: product.brand,
+                                price: product.price,
+                                category: product.category,
+                                stock: product.stock,
+                                image: product.image,
+                                description: product.description,
+                                badge: product.badge || '',
+                              });
+                              setShowProductForm(true);
+                              setActiveTab('add');
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm mr-2"
+                          >
+                            แก้ไข
+                          </button>
+                          <button
+                            onClick={() => product.id && handleDeleteProduct(product.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                          >
+                            ลบ
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Add/Edit Product Tab */}
+          {activeTab === 'add' && (
+            <div className="p-6">
+              <h2 className="text-lg font-bold mb-6">
+                {editingProduct ? '✏️ แก้ไขสินค้า' : '➕ เพิ่มสินค้าใหม่'}
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">ชื่อสินค้า</label>
+                  <input
+                    type="text"
+                    value={productForm.name}
+                    onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="เช่น Kink Gap XL"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">แบรนด์</label>
+                  <input
+                    type="text"
+                    value={productForm.brand}
+                    onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="เช่น KINK"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">ราคา (บาท)</label>
+                  <input
+                    type="number"
+                    value={productForm.price}
+                    onChange={(e) => setProductForm({ ...productForm, price: parseInt(e.target.value) || 0 })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">Stock</label>
+                  <input
+                    type="number"
+                    value={productForm.stock}
+                    onChange={(e) => setProductForm({ ...productForm, stock: parseInt(e.target.value) || 0 })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">หมวดหมู่</label>
+                  <select
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat.key} value={cat.key}>{cat.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">Badge (เช่น BEST, SALE)</label>
+                  <input
+                    type="text"
+                    value={productForm.badge}
+                    onChange={(e) => setProductForm({ ...productForm, badge: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="เช่น BEST"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-600 mb-2">URL รูปภาพ</label>
+                  <input
+                    type="text"
+                    value={productForm.image}
+                    onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="/bikes_kink_carve_16.jpg"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-600 mb-2">รายละเอียด</label>
+                  <textarea
+                    value={productForm.description}
+                    onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600 h-24"
+                    placeholder="รายละเอียดสินค้า..."
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={handleSaveProduct}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold"
+                >
+                  💾 บันทึก
+                </button>
+                <button
+                  onClick={() => { setShowProductForm(false); resetForm(); }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-lg font-bold"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Locations Tab */}
+          {activeTab === 'locations' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold">📍 สถานที่ฝึกสอน ({locations.length})</h2>
+                <button
+                  onClick={() => { setEditingLocation(null); resetLocationForm(); setActiveTab('add-location'); }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold"
+                >
+                  ➕ เพิ่มสถานที่ใหม่
+                </button>
+              </div>
+              <div className="space-y-4">
+                {locations.map((location) => (
+                  <div key={location.id} className="border rounded-xl p-6 hover:bg-gray-50">
+                    <div className="flex gap-6">
+                      <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden">
+                        {location.image && (
+                          <img src={location.image} alt={location.name} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-black text-xl">{location.name}</h3>
+                            <p className="text-gray-500 text-sm">{location.nameEn}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingLocation(location);
+                                setLocationForm({
+                                  name: location.name,
+                                  nameEn: location.nameEn,
+                                  address: location.address,
+                                  addressEn: location.addressEn,
+                                  mapUrl: location.mapUrl,
+                                  days: location.days,
+                                  daysEn: location.daysEn,
+                                  image: location.image,
+                                });
+                                setActiveTab('add-location');
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold"
+                            >
+                              แก้ไข
+                            </button>
+                            <button
+                              onClick={() => handleDeleteLocation(location.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold"
+                            >
+                              ลบ
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 text-sm mt-2">📍 {location.address}</p>
+                        <p className="text-gray-500 text-xs">{location.addressEn}</p>
+                        <div className="flex gap-4 mt-3">
+                          <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">
+                            {location.days}
+                          </span>
+                          {location.mapUrl && (
+                            <a href={location.mapUrl} target="_blank" className="text-blue-600 hover:text-blue-700 text-sm font-bold">
+                              📍 ดูแผนที่
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Add/Edit Location Tab */}
+          {activeTab === 'add-location' && (
+            <div className="p-6">
+              <h2 className="text-lg font-bold mb-6">
+                {editingLocation ? '✏️ แก้ไขสถานที่' : '➕ เพิ่มสถานที่ใหม่'}
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">ชื่อ (ไทย)</label>
+                  <input
+                    type="text"
+                    value={locationForm.name}
+                    onChange={(e) => setLocationForm({ ...locationForm, name: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="เช่น The Master BMX @ Rush"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">ชื่อ (English)</label>
+                  <input
+                    type="text"
+                    value={locationForm.nameEn}
+                    onChange={(e) => setLocationForm({ ...locationForm, nameEn: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="The Master BMX @ Rush"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-600 mb-2">ที่อยู่ (ไทย)</label>
+                  <input
+                    type="text"
+                    value={locationForm.address}
+                    onChange={(e) => setLocationForm({ ...locationForm, address: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="999 หมู่ 4 ตำบลบางแค..."
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-600 mb-2">ที่อยู่ (English)</label>
+                  <input
+                    type="text"
+                    value={locationForm.addressEn}
+                    onChange={(e) => setLocationForm({ ...locationForm, addressEn: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="999 Moo 4, Bang Khae..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">วันที่เปิด (ไทย)</label>
+                  <input
+                    type="text"
+                    value={locationForm.days}
+                    onChange={(e) => setLocationForm({ ...locationForm, days: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="จันทร์-ศุกร์"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">วันที่เปิด (English)</label>
+                  <input
+                    type="text"
+                    value={locationForm.daysEn}
+                    onChange={(e) => setLocationForm({ ...locationForm, daysEn: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="Mon-Fri"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-600 mb-2">Google Maps URL</label>
+                  <input
+                    type="text"
+                    value={locationForm.mapUrl}
+                    onChange={(e) => setLocationForm({ ...locationForm, mapUrl: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="https://maps.google.com/?q=..."
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-600 mb-2">URL รูปภาพ</label>
+                  <input
+                    type="text"
+                    value={locationForm.image}
+                    onChange={(e) => setLocationForm({ ...locationForm, image: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="/schedule_rush.jpg"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={handleSaveLocation}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold"
+                >
+                  💾 บันทึก
+                </button>
+                <button
+                  onClick={() => { setActiveTab('locations'); resetLocationForm(); }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-lg font-bold"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Promotions Tab */}
+          {activeTab === 'promo' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold">🎟️ โปรโมชั่น</h2>
+                <button
+                  onClick={async () => {
+                    const code = prompt('รหัสโปรโมชั่น:');
+                    if (!code) return;
+                    const discount = parseInt(prompt('ส่วนลด %:') || '0');
+                    if (discount <= 0) return;
+                    try {
+                      await addDoc(collection(db, 'promotions'), {
+                        code: code.toUpperCase(),
+                        discount,
+                        active: true,
+                      });
+                      fetchData();
+                    } catch (error) {
+                      console.log('Error adding promo');
+                    }
+                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold"
+                >
+                  ➕ เพิ่มโค้ดใหม่
+                </button>
+              </div>
+              <div className="space-y-4">
+                {['NEWRIDER', 'SIBLING', 'RUSTFEST'].map((code) => {
+                  const discounts = { NEWRIDER: 10, SIBLING: 15, RUSTFEST: 20 };
+                  return (
+                    <div key={code} className="flex items-center justify-between bg-gray-50 rounded-lg p-4">
+                      <div className="flex items-center gap-4">
+                        <span className="bg-red-600 text-white px-4 py-2 rounded-lg font-black">{code}</span>
+                        <span className="font-bold text-2xl">{discounts[code as keyof typeof discounts]}%</span>
+                      </div>
+                      <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-bold">
+                        เปิดใช้งาน
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Quick Links */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <Link href="/shop" target="_blank" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <h3 className="font-bold text-lg mb-2">🛒 หน้าร้าน</h3>
+            <p className="text-gray-500 text-sm">ดูหน้าร้านค้าที่เว็ปไซต์</p>
+          </Link>
+          <Link href="/schedule" target="_blank" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <h3 className="font-bold text-lg mb-2">📅 ตารางเรียน</h3>
+            <p className="text-gray-500 text-sm">จัดการตารางเรียน</p>
+          </Link>
+          <Link href="/admin/products" target="_blank" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <h3 className="font-bold text-lg mb-2">📦 Products API</h3>
+            <p className="text-gray-500 text-sm">ดู/แก้ไขสินค้าในระบบ</p>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

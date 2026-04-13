@@ -1,0 +1,11 @@
+[WARNING]: Importing from "langchain/llms/ollama" is deprecated.
+
+Instead, please add the "@langchain/community" package to your project with e.g.
+
+    $ npm install @langchain/community
+
+and import from "@langchain/community/llms/ollama".
+
+This will be mandatory after the next "langchain" minor version bump to 0.2.
+🤖 Chat server running on http://localhost:5002
+📱 Model: qwen2.5:3b

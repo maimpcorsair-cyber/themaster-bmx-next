@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&display=swap');
+
+* {
+  font-family: 'Prompt', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Monochrome Theme */
+body {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+/* Clean black & white buttons */
+.btn-primary {
+  @apply bg-white text-black font-bold py-3 px-6 hover:bg-gray-200 transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-transparent text-white border border-white font-bold py-3 px-6 hover:bg-white hover:text-black transition-colors;
+}
+
+/* Product cards - minimal */
+.product-card {
+  @apply bg-black border border-gray-800 hover:border-white transition-all;
+}
+
+/* Typography */
+.heading-xl {
+  @apply text-4xl md:text-6xl font-black tracking-tight;
+}
+
+/* Minimal dividers */
+.divider {
+  @apply border-t border-gray-800;
+}
+
+/* Rating stars */
+.star-filled {
+  @apply text-black;
+}
+.star-empty {
+  @apply text-gray-600;
+}
