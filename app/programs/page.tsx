@@ -10,63 +10,60 @@ import { initFirebase } from '@/lib/firebase';
 const groupPrograms = [
   {
     id: 'little',
-    age: '4-6 ปี',
-    name: 'Little Rider',
-    desc: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    nameTh: 'Little Rider',
+    nameEn: 'Little Rider',
+    ageTh: '4-6 ปี',
+    ageEn: '4-6 years',
+    descTh: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    descEn: 'Group class, max 20 students/class',
     type: 'group',
-    features: [
-      'สอนทรงตัวบนจักรยาน',
-      'ฝึกเบรกอย่างปลอดภัย',
-      'เกมส์และกิจกรรมสนุกๆ',
-      'ฝึกในสนามที่ปลอดภัย',
-    ],
+    featuresTh: ['สอนทรงตัวบนจักรยาน', 'ฝึกเบรกอย่างปลอดภัย', 'เกมส์และกิจกรรมสนุกๆ', 'ฝึกในสนามที่ปลอดภัย'],
+    featuresEn: ['Learn to balance on bike', 'Safe braking techniques', 'Fun games & activities', 'Train in safe environment'],
     equipment: [
-      { icon: '🚲', text: 'จักรยาน BMX 12-14 นิ้ว' },
-      { icon: '🪖', text: 'หมวกกันน็อคมาตรฐาน' },
-      { icon: '🧤', text: 'ถุงมือเด็ก' },
-      { icon: '🦺', text: 'เสื้อผ้ากีฬาที่พร้อมเคลื่อนไหว' },
+      { icon: '🚲', textTh: 'จักรยาน BMX 12-14 นิ้ว', textEn: 'BMX bike 12-14 inch' },
+      { icon: '🪖', textTh: 'หมวกกันน็อคมาตรฐาน', textEn: 'Standard helmet' },
+      { icon: '🧤', textTh: 'ถุงมือเด็ก', textEn: 'Kids gloves' },
+      { icon: '🦺', textTh: 'เสื้อผ้ากีฬาที่พร้อมเคลื่อนไหว', textEn: 'Sporty clothing' },
     ],
     price: 1500,
     popular: false,
   },
   {
     id: 'junior',
-    age: '7-12 ปี',
-    name: 'Junior Rider',
-    desc: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    nameTh: 'Junior Rider',
+    nameEn: 'Junior Rider',
+    ageTh: '7-12 ปี',
+    ageEn: '7-12 years',
+    descTh: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    descEn: 'Group class, max 20 students/class',
     type: 'group',
-    features: [
-      'ฝึก Bunny Hop',
-      'เทคนิคการบังคับ',
-      'ฝึกใน Pump Track',
-      'เตรียมแข่งขัน',
-    ],
+    featuresTh: ['ฝึก Bunny Hop', 'เทคนิคการบังคับ', 'ฝึกใน Pump Track', 'เตรียมแข่งขัน'],
+    featuresEn: ['Practice Bunny Hop', 'Control techniques', 'Pump Track training', 'Competition preparation'],
     equipment: [
-      { icon: '🚲', text: 'จักรยาน BMX 16-18 นิ้ว' },
-      { icon: '🪖', text: 'หมวกกันน็อคมาตรฐาน' },
-      { icon: '🧤', text: 'ถุงมือกีฬา' },
-      { icon: '🦾', text: 'เสื่อเข่า/แขน (แนะนำ)' },
+      { icon: '🚲', textTh: 'จักรยาน BMX 16-18 นิ้ว', textEn: 'BMX bike 16-18 inch' },
+      { icon: '🪖', textTh: 'หมวกกันน็อคมาตรฐาน', textEn: 'Standard helmet' },
+      { icon: '🧤', textTh: 'ถุงมือกีฬา', textEn: 'Sport gloves' },
+      { icon: '🦾', textTh: 'เสื่อเข่า/แขน (แนะนำ)', textEn: 'Knee/elbow pads (recommended)' },
     ],
     price: 2000,
     popular: true,
   },
   {
     id: 'competitor',
-    age: '13+ ปี',
-    name: 'Competitor',
-    desc: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    nameTh: 'Competitor',
+    nameEn: 'Competitor',
+    ageTh: '13+ ปี',
+    ageEn: '13+ years',
+    descTh: 'เรียนกลุ่ม สูงสุด 20 คน/คลาส',
+    descEn: 'Group class, max 20 students/class',
     type: 'group',
-    features: [
-      'ฝึกแข่งขันทุกสัปดาห์',
-      'เทคนิคขั้นสูง',
-      'ร่วมทีม Academy',
-      'เข้าร่วม RUSTFEST',
-    ],
+    featuresTh: ['ฝึกแข่งขันทุกสัปดาห์', 'เทคนิคขั้นสูง', 'ร่วมทีม Academy', 'เข้าร่วม RUSTFEST'],
+    featuresEn: ['Weekly competition training', 'Advanced techniques', 'Join Academy team', 'Participate in RUSTFEST'],
     equipment: [
-      { icon: '🚲', text: 'จักรยาน BMX แข่งขัน 20 นิ้ว' },
-      { icon: '🪖', text: 'หมวก Full Face' },
-      { icon: '🦾', text: 'ชุดเสื่อเข่า/แขน/ข้อมือ' },
-      { icon: '👕', text: 'ชุดแข่ง/ราธเสื้อ Team' },
+      { icon: '🚲', textTh: 'จักรยาน BMX แข่งขัน 20 นิ้ว', textEn: 'Competition BMX 20 inch' },
+      { icon: '🪖', textTh: 'หมวก Full Face', textEn: 'Full Face helmet' },
+      { icon: '🦾', textTh: 'ชุดเสื่อเข่า/แขน/ข้อมือ', textEn: 'Knee/elbow/wrist pads' },
+      { icon: '👕', textTh: 'ชุดแข่ง/ราธเสื้อ Team', textEn: 'Race suit/Team jersey' },
     ],
     price: 2500,
     popular: false,
@@ -76,20 +73,18 @@ const groupPrograms = [
 const privatePrograms = [
   {
     id: 'private-basic',
-    name: 'Private Basic',
-    desc: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    nameTh: 'Private Basic',
+    nameEn: 'Private Basic',
+    descTh: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    descEn: '1-on-1 private coaching',
     type: 'private',
     tier: '🥉',
-    features: [
-      'เรียนส่วนตัว 1 ต่อ 1',
-      'เรียนได้ 8 ครั้ง/เดือน',
-      'ปรับความเร็วตามผู้เรียน',
-      'เน้นพื้นฐานแน่น',
-    ],
+    featuresTh: ['เรียนส่วนตัว 1 ต่อ 1', 'เรียนได้ 8 ครั้ง/เดือน', 'ปรับความเร็วตามผู้เรียน', 'เน้นพื้นฐานแน่น'],
+    featuresEn: ['1-on-1 private session', '8 sessions/month', 'Adjust to learner pace', 'Focus on solid fundamentals'],
     equipment: [
-      { icon: '🪖', text: 'หมวกกันน็อคมาตรฐาน' },
-      { icon: '🧤', text: 'ถุงมือกีฬา' },
-      { icon: '🦾', text: 'เสื่อเข่า/แขน (แนะนำ)' },
+      { icon: '🪖', textTh: 'หมวกกันน็อคมาตรฐาน', textEn: 'Standard helmet' },
+      { icon: '🧤', textTh: 'ถุงมือกีฬา', textEn: 'Sport gloves' },
+      { icon: '🦾', textTh: 'เสื่อเข่า/แขน (แนะนำ)', textEn: 'Knee/elbow pads (recommended)' },
     ],
     pricePerHour: 800,
     priceMonthly: 4800,
@@ -97,20 +92,18 @@ const privatePrograms = [
   },
   {
     id: 'private-pro',
-    name: 'Private Pro',
-    desc: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    nameTh: 'Private Pro',
+    nameEn: 'Private Pro',
+    descTh: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    descEn: '1-on-1 private coaching',
     type: 'private',
     tier: '🥈',
-    features: [
-      'เรียนส่วนตัว 1 ต่อ 1',
-      'เรียนได้ 8 ครั้ง/เดือน',
-      'โค้ชมีประสบการณ์สูง',
-      'เน้นเทคนิคขั้นสูง',
-    ],
+    featuresTh: ['เรียนส่วนตัว 1 ต่อ 1', 'เรียนได้ 8 ครั้ง/เดือน', 'โค้ชมีประสบการณ์สูง', 'เน้นเทคนิคขั้นสูง'],
+    featuresEn: ['1-on-1 private session', '8 sessions/month', 'Highly experienced coach', 'Focus on advanced techniques'],
     equipment: [
-      { icon: '🪖', text: 'หมวก Full Face' },
-      { icon: '🦾', text: 'ชุดเสื่อเข่า/แขน/ข้อมือ' },
-      { icon: '👕', text: 'ชุดแข่ง (แนะนำ)' },
+      { icon: '🪖', textTh: 'หมวก Full Face', textEn: 'Full Face helmet' },
+      { icon: '🦾', textTh: 'ชุดเสื่อเข่า/แขน/ข้อมือ', textEn: 'Knee/elbow/wrist pads' },
+      { icon: '👕', textTh: 'ชุดแข่ง (แนะนำ)', textEn: 'Race suit (recommended)' },
     ],
     pricePerHour: 1000,
     priceMonthly: 6000,
@@ -118,21 +111,19 @@ const privatePrograms = [
   },
   {
     id: 'private-elite',
-    name: 'Private Elite',
-    desc: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    nameTh: 'Private Elite',
+    nameEn: 'Private Elite',
+    descTh: 'เรียนเดี่ยว 1 ต่อ 1 กับโค้ช',
+    descEn: '1-on-1 private coaching',
     type: 'private',
     tier: '🥇',
-    features: [
-      'เรียนส่วนตัว 1 ต่อ 1',
-      'เรียนได้ 8 ครั้ง/เดือน',
-      'โค้ชระดับทีมชาติ',
-      'เตรียมแข่งขันระดับประเทศ',
-    ],
+    featuresTh: ['เรียนส่วนตัว 1 ต่อ 1', 'เรียนได้ 8 ครั้ง/เดือน', 'โค้ชระดับทีมชาติ', 'เตรียมแข่งขันระดับประเทศ'],
+    featuresEn: ['1-on-1 private session', '8 sessions/month', 'National team coach', 'Prepare for national competition'],
     equipment: [
-      { icon: '🪖', text: 'หมวก Full Face ระดับแข่ง' },
-      { icon: '🦾', text: 'ชุดเสื่อระดับแข่งขัน' },
-      { icon: '👕', text: 'ชุดแข่ง Team' },
-      { icon: '🏅', text: 'เสื้อราธเสื้อ Academy' },
+      { icon: '🪖', textTh: 'หมวก Full Face ระดับแข่ง', textEn: 'Competition grade Full Face helmet' },
+      { icon: '🦾', textTh: 'ชุดเสื่อระดับแข่งขัน', textEn: 'Competition grade pads' },
+      { icon: '👕', textTh: 'ชุดแข่ง Team', textEn: 'Team race suit' },
+      { icon: '🏅', textTh: 'เสื้อราธเสื้อ Academy', textEn: 'Academy jersey' },
     ],
     pricePerHour: 1500,
     priceMonthly: 9000,
@@ -168,7 +159,7 @@ interface ScheduleItem {
 
 export default function ProgramsPage() {
   const { t, lang } = useLanguage();
-  const [selectedProgram, setSelectedProgram] = useState<(typeof groupPrograms[0] | typeof privatePrograms[0]) | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [showRegister, setShowRegister] = useState(false);
   const [formData, setFormData] = useState({
     parentName: '',
@@ -214,15 +205,18 @@ export default function ProgramsPage() {
     }
   };
 
-  const openRegister = (program: typeof groupPrograms[0] | typeof privatePrograms[0]) => {
+  const openRegister = (program: any) => {
     setSelectedProgram(program);
+    const programName = 'nameTh' in program 
+      ? (lang === 'th' ? program.nameTh : program.nameEn)
+      : program.nameEn;
     setFormData({
       parentName: '',
       studentName: '',
       age: '',
       phone: '',
       line: '',
-      program: program.name,
+      program: programName,
       schedule: '',
       coach: '',
       note: '',
@@ -286,8 +280,8 @@ export default function ProgramsPage() {
           <div className="flex items-center gap-3 mb-8">
             <span className="text-3xl">👥</span>
             <div>
-              <h2 className="text-2xl font-black">คอร์สกลุ่ม</h2>
-              <p className="text-gray-500 text-sm">เรียนพร้อมกันสูงสุด 20 คน/คลาส</p>
+              <h2 className="text-2xl font-black">{lang === 'th' ? 'คอร์สกลุ่ม' : 'Group Programs'}</h2>
+              <p className="text-gray-500 text-sm">{lang === 'th' ? 'เรียนพร้อมกันสูงสุด 20 คน/คลาส' : 'Learn together, max 20 students/class'}</p>
             </div>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -298,16 +292,16 @@ export default function ProgramsPage() {
               >
                 {program.popular && (
                   <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 self-start mb-3">
-                    ยอดนิยม
+                    {lang === 'th' ? 'ยอดนิยม' : 'POPULAR'}
                   </span>
                 )}
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">{program.age}</span>
-                <h3 className={`text-xl font-bold mt-2 mb-2 ${program.popular ? 'text-red-500' : ''}`}>{program.name}</h3>
-                <p className="text-gray-500 text-sm mb-4">{program.desc}</p>
+                <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">{lang === 'th' ? program.ageTh : program.ageEn}</span>
+                <h3 className={`text-xl font-bold mt-2 mb-2 ${program.popular ? 'text-red-500' : ''}`}>{lang === 'th' ? program.nameTh : program.nameEn}</h3>
+                <p className="text-gray-500 text-sm mb-4">{lang === 'th' ? program.descTh : program.descEn}</p>
                 
                 {/* Features */}
                 <ul className="space-y-2 mb-6">
-                  {program.features.map((feature, i) => (
+                  {(lang === 'th' ? program.featuresTh : program.featuresEn).map((feature, i) => (
                     <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
                       <span className="text-green-500">✓</span> {feature}
                     </li>
@@ -322,7 +316,7 @@ export default function ProgramsPage() {
                   <ul className="space-y-2">
                     {program.equipment.map((item, i) => (
                       <li key={i} className="text-gray-400 text-sm flex items-center gap-2">
-                        <span>{item.icon}</span> {item.text}
+                        <span>{item.icon}</span> {lang === 'th' ? item.textTh : item.textEn}
                       </li>
                     ))}
                   </ul>
@@ -335,12 +329,12 @@ export default function ProgramsPage() {
                 >
                   <p className={`text-2xl font-black ${program.popular ? 'text-red-500' : ''}`}>
                     ฿{program.price.toLocaleString()}
-                    <span className="text-sm font-normal text-gray-500">/{t.programs.perMonth}</span>
+                    <span className="text-sm font-normal text-gray-500">/{lang === 'th' ? 'เดือน' : 'month'}</span>
                   </p>
                   <div className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded mt-3 text-center transition-colors">
-                    ลงทะเบียนเรียน
+                    {lang === 'th' ? 'ลงทะเบียนเรียน' : 'Register'}
                   </div>
-                  <p className="text-center text-gray-500 text-xs mt-2">กดเพื่อเลือกเวลาและชำระเงิน</p>
+                  <p className="text-center text-gray-500 text-xs mt-2">{lang === 'th' ? 'กดเพื่อเลือกเวลาและชำระเงิน' : 'Click to select time & pay'}</p>
                 </div>
               </div>
             ))}
@@ -354,8 +348,8 @@ export default function ProgramsPage() {
           <div className="flex items-center gap-3 mb-8">
             <span className="text-3xl">🎓</span>
             <div>
-              <h2 className="text-2xl font-black">คอร์สเดี่ยว (Private)</h2>
-              <p className="text-gray-500 text-sm">เรียน 1 ต่อ 1 กับโค้ช ปรับความเร็วได้ตามต้องการ</p>
+              <h2 className="text-2xl font-black">{lang === 'th' ? 'คอร์สเดี่ยว (Private)' : 'Private Programs'}</h2>
+              <p className="text-gray-500 text-sm">{lang === 'th' ? 'เรียน 1 ต่อ 1 กับโค้ช ปรับความเร็วได้ตามต้องการ' : '1-on-1 coaching, adjust to your pace'}</p>
             </div>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -366,16 +360,16 @@ export default function ProgramsPage() {
               >
                 {program.popular && (
                   <span className="bg-yellow-500 text-black text-xs font-bold px-3 py-1 self-start mb-3">
-                    แนะนำ
+                    {lang === 'th' ? 'แนะนำ' : 'RECOMMENDED'}
                   </span>
                 )}
                 <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">{program.tier}</span>
-                <h3 className={`text-xl font-bold mt-2 mb-2 ${program.popular ? 'text-yellow-500' : ''}`}>{program.name}</h3>
-                <p className="text-gray-500 text-sm mb-4">{program.desc}</p>
+                <h3 className={`text-xl font-bold mt-2 mb-2 ${program.popular ? 'text-yellow-500' : ''}`}>{lang === 'th' ? program.nameTh : program.nameEn}</h3>
+                <p className="text-gray-500 text-sm mb-4">{lang === 'th' ? program.descTh : program.descEn}</p>
                 
                 {/* Features */}
                 <ul className="space-y-2 mb-6">
-                  {program.features.map((feature, i) => (
+                  {(lang === 'th' ? program.featuresTh : program.featuresEn).map((feature, i) => (
                     <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
                       <span className="text-green-500">✓</span> {feature}
                     </li>
@@ -390,7 +384,7 @@ export default function ProgramsPage() {
                   <ul className="space-y-2">
                     {program.equipment.map((item, i) => (
                       <li key={i} className="text-gray-400 text-sm flex items-center gap-2">
-                        <span>{item.icon}</span> {item.text}
+                        <span>{item.icon}</span> {lang === 'th' ? item.textTh : item.textEn}
                       </li>
                     ))}
                   </ul>
@@ -403,13 +397,13 @@ export default function ProgramsPage() {
                 >
                   <p className={`text-2xl font-black ${program.popular ? 'text-yellow-500' : ''}`}>
                     ฿{program.priceMonthly.toLocaleString()}
-                    <span className="text-sm font-normal text-gray-500">/เดือน</span>
+                    <span className="text-sm font-normal text-gray-500">/{lang === 'th' ? 'เดือน' : 'month'}</span>
                   </p>
-                  <p className="text-gray-500 text-xs mt-1">฿{program.pricePerHour}/ชั่วโมง</p>
+                  <p className="text-gray-500 text-xs mt-1">฿{program.pricePerHour}/{lang === 'th' ? 'ชั่วโมง' : 'hr'}</p>
                   <div className="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold py-3 rounded mt-3 text-center transition-colors">
-                    ลงทะเบียนเรียนเดี่ยว
+                    {lang === 'th' ? 'ลงทะเบียนเรียนเดี่ยว' : 'Register Private'}
                   </div>
-                  <p className="text-center text-gray-500 text-xs mt-2">กดเพื่อเลือกเวลาและชำระเงิน</p>
+                  <p className="text-center text-gray-500 text-xs mt-2">{lang === 'th' ? 'กดเพื่อเลือกเวลาและชำระเงิน' : 'Click to select time & pay'}</p>
                 </div>
               </div>
             ))}
@@ -627,7 +621,7 @@ export default function ProgramsPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-black">฿{'price' in selectedProgram ? selectedProgram.price.toLocaleString() : selectedProgram.priceMonthly.toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">/เดือน</p>
+                      <p className="text-xs text-gray-500">/{lang === 'th' ? 'เดือน' : 'month'}</p>
                       {'pricePerHour' in selectedProgram && (
                         <p className="text-xs text-gray-400">฿{selectedProgram.pricePerHour}/ชม.</p>
                       )}
