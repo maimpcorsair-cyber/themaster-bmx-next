@@ -165,13 +165,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Head Coach */}
+      {/* Coaches Section */}
       <section className="py-20 px-6 bg-black">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-black uppercase tracking-tight mb-8 text-center">
-            {lang === 'th' ? 'โค้ชหัวหน้าทีม' : 'Head Coach'}
+          <h2 className="text-2xl font-black uppercase tracking-tight mb-12 text-center">
+            {lang === 'th' ? 'โค้ชผู้สอน' : 'Our Coaches'}
           </h2>
-          <div className="flex flex-col md:flex-row items-center gap-12">
+          
+          {/* Coach 1 - Head Coach */}
+          <div className="flex flex-col md:flex-row items-center gap-12 mb-16">
             <div className="w-64 h-64 flex-shrink-0">
               <img 
                 src="/coach_jo.jpg" 
@@ -180,8 +182,9 @@ export default function AboutPage() {
               />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h3 className="text-3xl font-black text-red-500 mb-2">โค้ชพี่โจ้</h3>
-              <p className="text-lg text-gray-400 mb-4">Thailand National BMX Team</p>
+              <p className="text-red-500 text-sm font-bold uppercase tracking-wider mb-1">หัวหน้าโค้ช</p>
+              <h3 className="text-3xl font-black text-white mb-2">โค้ชพี่โจ้</h3>
+              <p className="text-lg text-gray-400 mb-4">ทีมชาติไทย BMX</p>
               <ul className="space-y-3 text-gray-300">
                 <li className="flex items-center gap-3 justify-center md:justify-start">
                   <span className="text-red-500">✓</span>
@@ -194,6 +197,36 @@ export default function AboutPage() {
                 <li className="flex items-center gap-3 justify-center md:justify-start">
                   <span className="text-red-500">✓</span>
                   {lang === 'th' ? 'ประสบการณ์สอน 15 ปี' : '15 Years Teaching Experience'}
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* Coach 2 - Assistant Coach */}
+          <div className="flex flex-col md:flex-row-reverse items-center gap-12">
+            <div className="w-64 h-64 flex-shrink-0">
+              <img 
+                src="/coach_2.jpg" 
+                alt="Coach P'Beer - Assistant Coach" 
+                className="w-full h-full object-cover rounded-xl"
+              />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <p className="text-red-500 text-sm font-bold uppercase tracking-wider mb-1">โค้ชผู้ช่วย</p>
+              <h3 className="text-3xl font-black text-white mb-2">โค้ชพี่เบียร์</h3>
+              <p className="text-lg text-gray-400 mb-4">ทีมชาติไทย BMX</p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-center gap-3 justify-center md:justify-start">
+                  <span className="text-red-500">✓</span>
+                  {lang === 'th' ? 'แชมป์ประเทศไทย 3 สมัย' : '3-Time Thailand Champion'}
+                </li>
+                <li className="flex items-center gap-3 justify-center md:justify-start">
+                  <span className="text-red-500">✓</span>
+                  {lang === 'th' ? 'ประสบการณ์สอน 10 ปี' : '10 Years Teaching Experience'}
+                </li>
+                <li className="flex items-center gap-3 justify-center md:justify-start">
+                  <span className="text-red-500">✓</span>
+                  {lang === 'th' ? 'ผู้ก่อตั้ง The Master BMX' : 'Founder of The Master BMX'}
                 </li>
               </ul>
             </div>
