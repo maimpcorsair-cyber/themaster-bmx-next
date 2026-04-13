@@ -108,6 +108,7 @@ export default function ProgramsPage() {
     line: '',
     program: '',
     schedule: '',
+    coach: '',
     note: '',
   });
   const [submitted, setSubmitted] = useState(false);
@@ -146,8 +147,15 @@ export default function ProgramsPage() {
   const openRegister = (program: typeof programs[0]) => {
     setSelectedProgram(program);
     setFormData({
-      ...formData,
+      parentName: '',
+      studentName: '',
+      age: '',
+      phone: '',
+      line: '',
       program: program.name,
+      schedule: '',
+      coach: '',
+      note: '',
     });
     setShowRegister(true);
     setSubmitted(false);
@@ -158,6 +166,11 @@ export default function ProgramsPage() {
     
     if (!formData.schedule) {
       alert('กรุณาเลือกตารางเรียน');
+      return;
+    }
+    
+    if (!formData.coach) {
+      alert('กรุณาเลือกโค้ชผู้สอน');
       return;
     }
     
@@ -496,19 +509,31 @@ export default function ProgramsPage() {
                   </div>
                 </div>
 
-                {/* Coach - Display only */}
+                {/* Coach - Clickable to select */}
                 <div className="mb-6">
-                  <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase">🏆 โค้ชผู้สอน</h4>
+                  <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase">🏆 โค้ชผู้สอน (กดเลือก)</h4>
                   <div className="flex gap-4">
-                    {coaches.map((coach, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-black border border-gray-800 rounded p-3">
-                        <img src={coach.image} alt={coach.name} className="w-12 h-12 rounded-full object-cover" />
-                        <div>
-                          <p className="text-white font-bold">{coach.name}</p>
-                          <p className="text-gray-500 text-xs">{t.coaches[coach.titleKey]}</p>
+                    {coaches.map((coach, i) => {
+                      const isSelected = formData.coach === coach.name;
+                      return (
+                        <div 
+                          key={i} 
+                          onClick={() => setFormData({ ...formData, coach: coach.name })}
+                          className={`cursor-pointer flex items-center gap-3 rounded p-3 transition-all flex-1 ${
+                            isSelected 
+                              ? 'bg-red-600 border-2 border-red-400' 
+                              : 'bg-black border border-gray-800 hover:border-red-600'
+                          }`}
+                        >
+                          <img src={coach.image} alt={coach.name} className="w-12 h-12 rounded-full object-cover" />
+                          <div>
+                            <p className={`font-bold ${isSelected ? 'text-white' : 'text-white'}`}>{coach.name}</p>
+                            <p className={`text-xs ${isSelected ? 'text-red-200' : 'text-gray-500'}`}>{t.coaches[coach.titleKey]}</p>
+                            {isSelected && <p className="text-xs text-white mt-1">✓ เลือกแล้ว</p>}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
