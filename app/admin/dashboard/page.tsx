@@ -26,6 +26,17 @@ interface ScheduleItem {
   spots: string;
 }
 
+interface Registration {
+  id?: string;
+  name: string;
+  age: string;
+  category: string;
+  phone: string;
+  line: string;
+  createdAt: string;
+  status: string;
+}
+
 const categories = [
   { key: 'bike', label: 'จักรยาน' },
   { key: 'helmets', label: 'หมวก' },
@@ -100,6 +111,7 @@ export default function AdminDashboardPage() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Schedule form state
@@ -182,6 +194,11 @@ export default function AdminDashboardPage() {
         setSchedule(scheduleSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as ScheduleItem[]);
       } else {
         setSchedule(defaultSchedule);
+      }
+
+      const regsSnapshot = await getDocs(collection(db, 'registrations'));
+      if (!regsSnapshot.empty) {
+        setRegistrations(regsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Registration[]);
       }
     } catch (error) {
       console.log('Using default data - Firebase error:', error);
@@ -309,6 +326,26 @@ export default function AdminDashboardPage() {
     setEditingSchedule(null);
   };
 
+  // Registration handlers
+  const handleDeleteRegistration = async (id: string) => {
+    if (!confirm('ลบการลงทะเบียนนี้?')) return;
+    try {
+      await deleteDoc(doc(db, 'registrations', id));
+      fetchData();
+    } catch (error) {
+      setRegistrations(prev => prev.filter(r => r.id !== id));
+    }
+  };
+
+  const handleUpdateRegistrationStatus = async (id: string, status: string) => {
+    try {
+      await updateDoc(doc(db, 'registrations', id), { status });
+      fetchData();
+    } catch (error) {
+      console.log('Error updating status');
+    }
+  };
+
   const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
   const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
   const lowStock = products.filter(p => p.stock <= 2).length;
@@ -427,6 +464,14 @@ export default function AdminDashboardPage() {
               }`}
             >
               📅 ตารางเรียน ({schedule.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('registrations')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'registrations' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              📋 ลงทะเบียน ({registrations.length})
             </button>
           </div>
 
@@ -1044,6 +1089,86 @@ export default function AdminDashboardPage() {
                   ยกเลิก
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Registrations Tab */}
+          {activeTab === 'registrations' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold">📋 ผู้ลงทะเบียนแข่งขัน RUSTFEST ({registrations.length})</h2>
+              </div>
+              {registrations.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <p className="text-4xl mb-4">📋</p>
+                  <p>ยังไม่มีผู้ลงทะเบียน</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b text-left">
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">ชื่อ</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">อายุ</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">รุ่น</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">เบอร์โทร</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">LINE</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">สถานะ</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">วันที่</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">จัดการ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {registrations.map((reg) => (
+                        <tr key={reg.id} className="border-b hover:bg-gray-50">
+                          <td className="py-4 font-bold">{reg.name}</td>
+                          <td className="py-4">{reg.age}</td>
+                          <td className="py-4">
+                            <span className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm font-bold">
+                              {reg.category === 'mini' ? 'Mini' : reg.category === 'jr' ? 'Junior' : 'Open'}
+                            </span>
+                          </td>
+                          <td className="py-4">{reg.phone}</td>
+                          <td className="py-4 text-blue-500">{reg.line || '-'}</td>
+                          <td className="py-4">
+                            <select
+                              value={reg.status || 'new'}
+                              onChange={(e) => reg.id && handleUpdateRegistrationStatus(reg.id, e.target.value)}
+                              className={`border rounded px-2 py-1 text-sm font-bold ${
+                                reg.status === 'confirmed' ? 'bg-green-100 text-green-600' :
+                                reg.status === 'contacted' ? 'bg-blue-100 text-blue-600' :
+                                'bg-yellow-100 text-yellow-600'
+                              }`}
+                            >
+                              <option value="new">รอติดต่อ</option>
+                              <option value="contacted">ติดต่อแล้ว</option>
+                              <option value="confirmed">ยืนยันแล้ว</option>
+                            </select>
+                          </td>
+                          <td className="py-4 text-gray-500 text-sm">
+                            {reg.createdAt ? new Date(reg.createdAt).toLocaleDateString('th-TH') : '-'}
+                          </td>
+                          <td className="py-4">
+                            <a
+                              href={`https://line.me/R/ti/p/@rushfest`}
+                              target="_blank"
+                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm mr-2"
+                            >
+                              LINE
+                            </a>
+                            <button
+                              onClick={() => reg.id && handleDeleteRegistration(reg.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                            >
+                              ลบ
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
         </div>
