@@ -21,7 +21,7 @@ const events = [
     date: 'ทุกเดือน',
     location: 'สเกตปาร์คบางแค',
     cost: '฿300',
-    image: '/rustfest_2.jpg',
+    image: '/rustfest_5.jpg',
     description: 'Workshop ฝึก BMX Street กับโค้ชมืออาชีพ',
   },
   {
@@ -39,7 +39,7 @@ const events = [
     date: 'ทุก 3 เดือน',
     location: 'The Master BMX School',
     cost: 'เข้าฟรี',
-    image: '/rustfest_4.jpg',
+    image: '/rustfest_6.jpg',
     description: 'เด็กโชว์ทักษะ รับ Certificate',
   },
 ];
