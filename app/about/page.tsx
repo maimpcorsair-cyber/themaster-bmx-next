@@ -183,7 +183,7 @@ export default function AboutPage() {
             </div>
             <div className="flex-1 text-center md:text-left">
               <p className="text-red-500 text-sm font-bold uppercase tracking-wider mb-1">หัวหน้าโค้ช</p>
-              <h3 className="text-3xl font-black text-white mb-2">โค้ชพี่โจ้</h3>
+              <h3 className="text-3xl font-black text-white mb-2">โค้ชพี่เต๋า</h3>
               <p className="text-lg text-gray-400 mb-4">ทีมชาติไทย BMX</p>
               <ul className="space-y-3 text-gray-300">
                 <li className="flex items-center gap-3 justify-center md:justify-start">
@@ -213,7 +213,7 @@ export default function AboutPage() {
             </div>
             <div className="flex-1 text-center md:text-left">
               <p className="text-red-500 text-sm font-bold uppercase tracking-wider mb-1">โค้ชผู้ช่วย</p>
-              <h3 className="text-3xl font-black text-white mb-2">โค้ชพี่เบียร์</h3>
+              <h3 className="text-3xl font-black text-white mb-2">โค้ชพี่บอส</h3>
               <p className="text-lg text-gray-400 mb-4">ทีมชาติไทย BMX</p>
               <ul className="space-y-3 text-gray-300">
                 <li className="flex items-center gap-3 justify-center md:justify-start">
