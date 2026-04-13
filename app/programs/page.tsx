@@ -69,7 +69,7 @@ const programs = [
 
 const coaches = [
   {
-    name: 'โค้ชพี่โจ้',
+    name: 'โค้ชพี่เต๋า',
     titleKey: 'headCoach' as const,
     brandKey: 'nationalTeam' as const,
     image: '/coach.jpg',
@@ -77,7 +77,7 @@ const coaches = [
     videoId: 'W6Kn4-b2XIM',
   },
   {
-    name: 'โค้ชพี่เบียร์',
+    name: 'โค้ชพี่บอส',
     titleKey: 'assistant' as const,
     brandKey: 'nationalTeam' as const,
     image: '/coach_race1.jpg',
