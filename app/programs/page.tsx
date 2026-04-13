@@ -516,10 +516,11 @@ export default function ProgramsPage() {
                     {coaches.map((coach, i) => {
                       const isSelected = formData.coach === coach.name;
                       return (
-                        <div 
+                        <button
+                          type="button"
                           key={i} 
                           onClick={() => setFormData({ ...formData, coach: coach.name })}
-                          className={`cursor-pointer flex items-center gap-3 rounded p-3 transition-all flex-1 ${
+                          className={`cursor-pointer flex items-center gap-3 rounded p-3 transition-all flex-1 text-left ${
                             isSelected 
                               ? 'bg-red-600 border-2 border-red-400' 
                               : 'bg-black border border-gray-800 hover:border-red-600'
@@ -527,11 +528,11 @@ export default function ProgramsPage() {
                         >
                           <img src={coach.image} alt={coach.name} className="w-12 h-12 rounded-full object-cover" />
                           <div>
-                            <p className={`font-bold ${isSelected ? 'text-white' : 'text-white'}`}>{coach.name}</p>
+                            <p className="font-bold text-white">{coach.name}</p>
                             <p className={`text-xs ${isSelected ? 'text-red-200' : 'text-gray-500'}`}>{t.coaches[coach.titleKey]}</p>
                             {isSelected && <p className="text-xs text-white mt-1">✓ เลือกแล้ว</p>}
                           </div>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
