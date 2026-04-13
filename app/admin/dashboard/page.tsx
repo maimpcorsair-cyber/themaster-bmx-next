@@ -137,6 +137,8 @@ export default function AdminDashboardPage() {
     image: '',
     description: '',
     badge: '',
+    rating: 4.5,
+    reviews: 0,
   });
 
   useEffect(() => {
@@ -205,6 +207,8 @@ export default function AdminDashboardPage() {
       image: '',
       description: '',
       badge: '',
+      rating: 4.5,
+      reviews: 0,
     });
     setEditingProduct(null);
   };
@@ -214,11 +218,7 @@ export default function AdminDashboardPage() {
       if (editingProduct?.id) {
         await updateDoc(doc(db, 'products', editingProduct.id), productForm);
       } else {
-        await addDoc(collection(db, 'products'), {
-          ...productForm,
-          rating: 4.5,
-          reviews: 0,
-        });
+        await addDoc(collection(db, 'products'), productForm);
       }
       setShowProductForm(false);
       resetForm();
@@ -440,6 +440,8 @@ export default function AdminDashboardPage() {
                       <th className="pb-4 text-sm font-bold text-gray-500 uppercase">สินค้า</th>
                       <th className="pb-4 text-sm font-bold text-gray-500 uppercase">ราคา</th>
                       <th className="pb-4 text-sm font-bold text-gray-500 uppercase">Stock</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">Rating</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">Reviews</th>
                       <th className="pb-4 text-sm font-bold text-gray-500 uppercase">หมวด</th>
                       <th className="pb-4 text-sm font-bold text-gray-500 uppercase">จัดการ</th>
                     </tr>
@@ -483,6 +485,12 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         <td className="py-4">
+                          <span className="text-yellow-500">★</span> {(product.rating || 0).toFixed(1)}
+                        </td>
+                        <td className="py-4 text-gray-500">
+                          ({product.reviews || 0})
+                        </td>
+                        <td className="py-4">
                           <span className="bg-gray-200 px-3 py-1 rounded text-xs font-bold">
                             {categories.find(c => c.key === product.category)?.label || product.category}
                           </span>
@@ -500,6 +508,8 @@ export default function AdminDashboardPage() {
                                 image: product.image,
                                 description: product.description,
                                 badge: product.badge || '',
+                                rating: product.rating || 4.5,
+                                reviews: product.reviews || 0,
                               });
                               setActiveTab('add-product');
                             }}
@@ -587,6 +597,30 @@ export default function AdminDashboardPage() {
                     onChange={(e) => setProductForm({ ...productForm, badge: e.target.value })}
                     className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
                     placeholder="เช่น BEST"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">Rating (0-5)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={productForm.rating}
+                    onChange={(e) => setProductForm({ ...productForm, rating: parseFloat(e.target.value) || 0 })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="4.5"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">จำนวน Reviews</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={productForm.reviews}
+                    onChange={(e) => setProductForm({ ...productForm, reviews: parseInt(e.target.value) || 0 })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="0"
                   />
                 </div>
                 <div className="md:col-span-2">
