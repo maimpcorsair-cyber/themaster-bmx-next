@@ -17,6 +17,15 @@ interface Location {
   image: string;
 }
 
+interface ScheduleItem {
+  id?: string;
+  day: string;
+  time: string;
+  program: string;
+  location: string;
+  spots: string;
+}
+
 const categories = [
   { key: 'bike', label: 'จักรยาน' },
   { key: 'helmets', label: 'หมวก' },
@@ -64,6 +73,25 @@ const defaultLocations: Location[] = [
   { id: 'pattaya', name: 'The Master BMX @ Pattaya', nameEn: 'The Master BMX @ Pattaya', address: '777 หมู่ 3 ตำบลนาเกลือ อำเภอบางละมุง พัทยา 20150', addressEn: '777 Moo 3, Na Klua, Pattaya 20150', mapUrl: 'https://maps.google.com/?q=12.9214,100.8824', days: 'เสาร์-อาทิตย์', daysEn: 'Sat-Sun', image: '/schedule_pattaya.jpg' },
 ];
 
+const defaultSchedule: ScheduleItem[] = [
+  { id: '1', day: 'จันทร์', time: '15:00-16:30', program: 'Little Rider', location: 'rush', spots: '10' },
+  { id: '2', day: 'จันทร์', time: '16:30-18:00', program: 'Junior Rider', location: 'rush', spots: '12' },
+  { id: '3', day: 'อังคาร', time: '15:00-16:30', program: 'Little Rider', location: 'rush', spots: '10' },
+  { id: '4', day: 'อังคาร', time: '16:30-18:00', program: 'Competitor', location: 'rush', spots: '8' },
+  { id: '5', day: 'พุธ', time: '15:00-16:30', program: 'Junior Rider', location: 'rush', spots: '12' },
+  { id: '6', day: 'พุธ', time: '16:30-18:00', program: 'Competitor', location: 'rush', spots: '8' },
+  { id: '7', day: 'พฤหัสบดี', time: '15:00-16:30', program: 'Little Rider', location: 'rush', spots: '10' },
+  { id: '8', day: 'พฤหัสบดี', time: '16:30-18:00', program: 'Junior Rider', location: 'rush', spots: '12' },
+  { id: '9', day: 'ศุกร์', time: '15:00-16:30', program: 'Little Rider', location: 'rush', spots: '10' },
+  { id: '10', day: 'ศุกร์', time: '16:30-18:00', program: 'Competitor', location: 'rush', spots: '8' },
+  { id: '11', day: 'เสาร์', time: '09:00-10:30', program: 'Little Rider', location: 'bang', spots: '10' },
+  { id: '12', day: 'เสาร์', time: '10:30-12:00', program: 'Junior Rider', location: 'bang', spots: '12' },
+  { id: '13', day: 'เสาร์', time: '13:00-14:30', program: 'Competitor', location: 'bang', spots: '8' },
+  { id: '14', day: 'อาทิตย์', time: '09:00-10:30', program: 'Little Rider', location: 'bang', spots: '10' },
+  { id: '15', day: 'อาทิตย์', time: '10:30-12:00', program: 'Junior Rider', location: 'bang', spots: '12' },
+  { id: '16', day: 'อาทิตย์', time: '13:00-14:30', program: 'Competitor', location: 'bang', spots: '8' },
+];
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -71,7 +99,18 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Schedule form state
+  const [editingSchedule, setEditingSchedule] = useState<ScheduleItem | null>(null);
+  const [scheduleForm, setScheduleForm] = useState({
+    day: '',
+    time: '',
+    program: '',
+    location: '',
+    spots: '',
+  });
   
   // Location form state
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
@@ -134,6 +173,13 @@ export default function AdminDashboardPage() {
         setLocations(locationsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Location[]);
       } else {
         setLocations(defaultLocations);
+      }
+
+      const scheduleSnapshot = await getDocs(collection(db, 'schedule'));
+      if (!scheduleSnapshot.empty) {
+        setSchedule(scheduleSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as ScheduleItem[]);
+      } else {
+        setSchedule(defaultSchedule);
       }
     } catch (error) {
       console.log('Using default data - Firebase error:', error);
@@ -230,6 +276,37 @@ export default function AdminDashboardPage() {
   const resetLocationForm = () => {
     setLocationForm({ name: '', nameEn: '', address: '', addressEn: '', mapUrl: '', days: '', daysEn: '', image: '' });
     setEditingLocation(null);
+  };
+
+  // Schedule handlers
+  const handleSaveSchedule = async () => {
+    try {
+      if (editingSchedule?.id) {
+        await updateDoc(doc(db, 'schedule', editingSchedule.id), scheduleForm);
+      } else {
+        await addDoc(collection(db, 'schedule'), scheduleForm);
+      }
+      setEditingSchedule(null);
+      setScheduleForm({ day: '', time: '', program: '', location: '', spots: '' });
+      fetchData();
+    } catch (error) {
+      console.log('Error saving schedule');
+    }
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+    if (!confirm('ลบตารางนี้?')) return;
+    try {
+      await deleteDoc(doc(db, 'schedule', id));
+      fetchData();
+    } catch (error) {
+      setSchedule(prev => prev.filter(s => s.id !== id));
+    }
+  };
+
+  const resetScheduleForm = () => {
+    setScheduleForm({ day: '', time: '', program: '', location: '', spots: '' });
+    setEditingSchedule(null);
   };
 
   const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
@@ -342,6 +419,14 @@ export default function AdminDashboardPage() {
               }`}
             >
               🎟️ โปรโมชั่น
+            </button>
+            <button
+              onClick={() => setActiveTab('schedule')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'schedule' || activeTab === 'add-schedule' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              📅 ตารางเรียน ({schedule.length})
             </button>
           </div>
 
@@ -763,6 +848,167 @@ export default function AdminDashboardPage() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* Schedule Tab */}
+          {activeTab === 'schedule' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold">📅 ตารางเรียน ({schedule.length})</h2>
+                <button
+                  onClick={() => { resetScheduleForm(); setActiveTab('add-schedule'); }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold"
+                >
+                  ➕ เพิ่มตารางใหม่
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b text-left">
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">วัน</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">เวลา</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">โปรแกรม</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">สถานที่</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">ที่ว่าง</th>
+                      <th className="pb-4 text-sm font-bold text-gray-500 uppercase">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {schedule.map((item) => {
+                      const location = locations.find(l => l.id === item.location);
+                      return (
+                        <tr key={item.id} className="border-b hover:bg-gray-50">
+                          <td className="py-4 font-bold">{item.day}</td>
+                          <td className="py-4">{item.time}</td>
+                          <td className="py-4">
+                            <span className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm font-bold">
+                              {item.program}
+                            </span>
+                          </td>
+                          <td className="py-4">
+                            <span className="text-gray-600">{location?.name || item.location}</span>
+                          </td>
+                          <td className="py-4 font-bold">{item.spots}</td>
+                          <td className="py-4">
+                            <button
+                              onClick={() => {
+                                setEditingSchedule(item);
+                                setScheduleForm({
+                                  day: item.day,
+                                  time: item.time,
+                                  program: item.program,
+                                  location: item.location,
+                                  spots: item.spots,
+                                });
+                                setActiveTab('add-schedule');
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm mr-2"
+                            >
+                              แก้ไข
+                            </button>
+                            <button
+                              onClick={() => item.id && handleDeleteSchedule(item.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                            >
+                              ลบ
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Add/Edit Schedule Tab */}
+          {activeTab === 'add-schedule' && (
+            <div className="p-6">
+              <h2 className="text-lg font-bold mb-6">
+                {editingSchedule ? '✏️ แก้ไขตาราง' : '➕ เพิ่มตารางใหม่'}
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">วัน</label>
+                  <select
+                    value={scheduleForm.day}
+                    onChange={(e) => setScheduleForm({ ...scheduleForm, day: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                  >
+                    <option value="">เลือกวัน...</option>
+                    <option value="จันทร์">จันทร์</option>
+                    <option value="อังคาร">อังคาร</option>
+                    <option value="พุธ">พุธ</option>
+                    <option value="พฤหัสบดี">พฤหัสบดี</option>
+                    <option value="ศุกร์">ศุกร์</option>
+                    <option value="เสาร์">เสาร์</option>
+                    <option value="อาทิตย์">อาทิตย์</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">เวลา</label>
+                  <input
+                    type="text"
+                    value={scheduleForm.time}
+                    onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="เช่น 15:00-16:30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">โปรแกรม</label>
+                  <select
+                    value={scheduleForm.program}
+                    onChange={(e) => setScheduleForm({ ...scheduleForm, program: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                  >
+                    <option value="">เลือกโปรแกรม...</option>
+                    <option value="Little Rider">Little Rider</option>
+                    <option value="Junior Rider">Junior Rider</option>
+                    <option value="Competitor">Competitor</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">สถานที่</label>
+                  <select
+                    value={scheduleForm.location}
+                    onChange={(e) => setScheduleForm({ ...scheduleForm, location: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                  >
+                    <option value="">เลือกสถานที่...</option>
+                    {locations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>{loc.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-600 mb-2">ที่ว่าง</label>
+                  <input
+                    type="text"
+                    value={scheduleForm.spots}
+                    onChange={(e) => setScheduleForm({ ...scheduleForm, spots: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    placeholder="เช่น 10"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={handleSaveSchedule}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold"
+                >
+                  💾 บันทึก
+                </button>
+                <button
+                  onClick={() => { setActiveTab('schedule'); resetScheduleForm(); }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-lg font-bold"
+                >
+                  ยกเลิก
+                </button>
               </div>
             </div>
           )}
