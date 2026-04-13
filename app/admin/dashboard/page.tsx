@@ -1227,6 +1227,42 @@ export default function AdminDashboardPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold">🎓 ผู้ลงทะเบียนคอร์สเรียน ({courseRegistrations.length})</h2>
+                {courseRegistrations.length === 0 && (
+                  <button
+                    onClick={async () => {
+                      const sampleData = [
+                        { parentName: 'คุณสมศักดิ์', studentName: 'น้องเจมส์', age: '6', phone: '081-234-5678', line: '@james007', program: 'Little Rider', schedule: 'จันทร์ 15:00-16:30 (รัชดา)', coach: 'โค้ชพี่เต๋า', price: 1500, status: 'confirmed', createdAt: '2026-04-01T10:00:00Z' },
+                        { parentName: 'คุณวิไล', studentName: 'น้องซาร่า', age: '8', phone: '082-345-6789', line: '@sara888', program: 'Junior Rider', schedule: 'เสาร์ 09:00-10:30 (บางแค)', coach: 'โค้ชพี่บอส', price: 2000, status: 'confirmed', createdAt: '2026-04-02T11:00:00Z' },
+                        { parentName: 'คุณธนา', studentName: 'น้องไมค์', age: '10', phone: '083-456-7890', line: '@mike999', program: 'Competitor', schedule: 'เสาร์ 13:00-14:30 (บางแค)', coach: 'โค้ชพี่เต๋า', price: 2500, status: 'confirmed', createdAt: '2026-04-03T09:00:00Z' },
+                        { parentName: 'คุณนภา', studentName: 'น้องพิม', age: '5', phone: '084-567-8901', line: '@pim555', program: 'Little Rider', schedule: 'อังคาร 15:00-16:30 (รัชดา)', coach: 'โค้ชพี่เต๋า', price: 1500, status: 'contacted', createdAt: '2026-04-04T14:00:00Z' },
+                        { parentName: 'คุณภูมิ', studentName: 'น้องบีม', age: '12', phone: '085-678-9012', line: '@beam222', program: 'Junior Rider', schedule: 'อาทิตย์ 10:30-12:00 (บางแค)', coach: 'โค้ชพี่บอส', price: 2000, status: 'contacted', createdAt: '2026-04-05T16:00:00Z' },
+                        { parentName: 'คุณกนก', studentName: 'น้องกิตติ', age: '14', phone: '086-789-0123', line: '@kittipat', program: 'Competitor', schedule: 'เสาร์ 13:00-14:30 (บางแค)', coach: 'โค้ชพี่เต๋า', price: 2500, status: 'new', createdAt: '2026-04-06T10:00:00Z' },
+                        { parentName: 'คุณปวีณา', studentName: 'น้องแนน', age: '7', phone: '087-890-1234', line: '@nan_aaa', program: 'Little Rider', schedule: 'พุธ 15:00-16:30 (รัชดา)', coach: 'โค้ชพี่เต๋า', price: 1500, status: 'new', createdAt: '2026-04-07T11:00:00Z' },
+                        { parentName: 'คุณสุภาพ', studentName: 'น้องซัน', age: '9', phone: '088-901-2345', line: '@sunny_kid', program: 'Junior Rider', schedule: 'เสาร์ 09:00-10:30 (บางแค)', coach: 'โค้ชพี่บอส', price: 2000, status: 'confirmed', createdAt: '2026-04-08T09:00:00Z' },
+                        { parentName: 'คุณอัญชัญ', studentName: 'น้องเอวา', age: '11', phone: '089-012-3456', line: '@eva555', program: 'Competitor', schedule: 'อาทิตย์ 13:00-14:30 (บางแค)', coach: 'โค้ชพี่เต๋า', price: 2500, status: 'confirmed', createdAt: '2026-04-09T15:00:00Z' },
+                        { parentName: 'คุณเจษฎา', studentName: 'น้องมาร์ค', age: '6', phone: '090-123-4567', line: '@markjr', program: 'Little Rider', schedule: 'พฤหัสบดี 15:00-16:30 (รัชดา)', coach: 'โค้ชพี่เต๋า', price: 1500, status: 'contacted', createdAt: '2026-04-10T10:00:00Z' },
+                        { parentName: 'คุณนริตา', studentName: 'น้องไทย', age: '8', phone: '091-234-5678', line: '@thai_bmx', program: 'Junior Rider', schedule: 'เสาร์ 10:30-12:00 (บางแค)', coach: 'โค้ชพี่บอส', price: 2000, status: 'new', createdAt: '2026-04-11T11:00:00Z' },
+                        { parentName: 'คุณธัญญา', studentName: 'น้องฟิล์ม', age: '13', phone: '092-345-6789', line: '@film_guy', program: 'Competitor', schedule: 'เสาร์ 13:00-14:30 (บางแค)', coach: 'โค้ชพี่เต๋า', price: 2500, status: 'confirmed', createdAt: '2026-04-12T14:00:00Z' },
+                        { parentName: 'คุณประยุทธ', studentName: 'น้องโจน', age: '5', phone: '093-456-7890', line: '@john_cool', program: 'Little Rider', schedule: 'ศุกร์ 15:00-16:30 (รัชดา)', coach: 'โค้ชพี่เต๋า', price: 1500, status: 'new', createdAt: '2026-04-13T09:00:00Z' },
+                        { parentName: 'คุณวรรณา', studentName: 'น้องแพร', age: '10', phone: '094-567-8901', line: '@praew_bmx', program: 'Junior Rider', schedule: 'อาทิตย์ 09:00-10:30 (บางแค)', coach: 'โค้ชพี่บอส', price: 2000, status: 'contacted', createdAt: '2026-04-14T10:00:00Z' },
+                        { parentName: 'คุณสุรศักดิ์', studentName: 'น้องซิล์ฟ', age: '12', phone: '095-678-9012', line: '@silf_king', program: 'Competitor', schedule: 'เสาร์ 13:00-14:30 (บางแค)', coach: 'โค้ชพี่เต๋า', price: 2500, status: 'confirmed', createdAt: '2026-04-15T11:00:00Z' },
+                        { parentName: 'คุณพิมพ์', studentName: 'น้องช้าง', age: '7', phone: '096-789-0123', line: '@chang_bmx', program: 'Little Rider', schedule: 'จันทร์ 15:00-16:30 (รัชดา)', coach: 'โค้ชพี่เต๋า', price: 1500, status: 'new', createdAt: '2026-04-16T14:00:00Z' },
+                        { parentName: 'คุณฐานะ', studentName: 'น้องต้น', age: '9', phone: '097-890-1234', line: '@ton_toon', program: 'Junior Rider', schedule: 'เสาร์ 10:30-12:00 (บางแค)', coach: 'โค้ชพี่บอส', price: 2000, status: 'contacted', createdAt: '2026-04-17T15:00:00Z' },
+                        { parentName: 'คุณมาณี', studentName: 'น้องลิลลี่', age: '11', phone: '098-901-2345', line: '@lily_flower', program: 'Competitor', schedule: 'อาทิตย์ 13:00-14:30 (บางแค)', coach: 'โค้ชพี่เต๋า', price: 2500, status: 'confirmed', createdAt: '2026-04-18T09:00:00Z' },
+                        { parentName: 'คุณธนกฤต', studentName: 'น้องเพชร', age: '6', phone: '099-012-3456', line: '@petch_bmx', program: 'Little Rider', schedule: 'อังคาร 15:00-16:30 (รัชดา)', coach: 'โค้ชพี่เต๋า', price: 1500, status: 'new', createdAt: '2026-04-19T10:00:00Z' },
+                        { parentName: 'คุณสุชาดา', studentName: 'น้องอควา', age: '8', phone: '080-123-4567', line: '@aqua_kid', program: 'Junior Rider', schedule: 'เสาร์ 09:00-10:30 (บางแค)', coach: 'โค้ชพี่บอส', price: 2000, status: 'contacted', createdAt: '2026-04-20T11:00:00Z' },
+                      ];
+                      for (const data of sampleData) {
+                        await addDoc(collection(db, 'course_registrations'), data);
+                      }
+                      fetchData();
+                      alert('เพิ่มข้อมูลตัวอย่าง 20 คนแล้ว!');
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold"
+                  >
+                    ➕ เพิ่มข้อมูลตัวอย่าง 20 คน
+                  </button>
+                )}
               </div>
               {courseRegistrations.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
