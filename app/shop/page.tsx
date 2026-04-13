@@ -80,6 +80,7 @@ export default function ShopPage() {
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
 
   // Fetch products from Firebase
   useEffect(() => {
@@ -112,6 +113,8 @@ export default function ShopPage() {
 
   const addToCart = (id: string) => {
     setCart(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    setJustAdded(id);
+    setTimeout(() => setJustAdded(null), 1500);
   };
 
   const updateQty = (id: string, qty: number) => {
@@ -252,13 +255,19 @@ export default function ShopPage() {
                     <button
                       onClick={() => addToCart(product.id)}
                       disabled={product.stock === 0}
-                      className={`w-full mt-3 py-2 rounded font-bold text-sm transition-colors ${
+                      className={`w-full mt-3 py-2 rounded font-bold text-sm transition-all ${
                         product.stock === 0
                           ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          : 'bg-black text-white hover:bg-gray-800'
+                          : justAdded === product.id
+                            ? 'bg-green-500 text-white scale-95'
+                            : 'bg-black text-white hover:bg-gray-800'
                       }`}
                     >
-                      {product.stock === 0 ? 'สินค้าหมด' : lang === 'th' ? 'เพิ่มลงตะกร้า' : 'Add to Cart'}
+                      {product.stock === 0 
+                        ? 'สินค้าหมด' 
+                        : justAdded === product.id 
+                          ? '✓ เพิ่มแล้ว!' 
+                          : lang === 'th' ? 'เพิ่มลงตะกร้า' : 'Add to Cart'}
                     </button>
                   </div>
                 </div>
@@ -398,10 +407,10 @@ export default function ShopPage() {
         </div>
       )}
 
-      {/* Floating Cart Button */}
+      {/* Floating Cart Button - Left of Chat */}
       <button
         onClick={() => setShowCart(true)}
-        className="fixed bottom-6 right-6 bg-red-600 text-white p-4 rounded-full shadow-2xl z-40 flex items-center gap-2"
+        className="fixed bottom-6 right-24 bg-red-600 text-white p-4 rounded-full shadow-2xl z-40 flex items-center gap-2 hover:scale-105 transition-transform"
       >
         <span className="text-2xl">🛒</span>
         {Object.keys(cart).length > 0 && (
