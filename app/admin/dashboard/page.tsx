@@ -37,6 +37,22 @@ interface Registration {
   status: string;
 }
 
+interface CourseRegistration {
+  id?: string;
+  parentName: string;
+  studentName: string;
+  age: string;
+  phone: string;
+  line: string;
+  program: string;
+  schedule: string;
+  coach: string;
+  price: number;
+  note: string;
+  createdAt: string;
+  status: string;
+}
+
 const categories = [
   { key: 'bike', label: 'จักรยาน' },
   { key: 'helmets', label: 'หมวก' },
@@ -112,6 +128,7 @@ export default function AdminDashboardPage() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [courseRegistrations, setCourseRegistrations] = useState<CourseRegistration[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Schedule form state
@@ -199,6 +216,11 @@ export default function AdminDashboardPage() {
       const regsSnapshot = await getDocs(collection(db, 'registrations'));
       if (!regsSnapshot.empty) {
         setRegistrations(regsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Registration[]);
+      }
+
+      const courseRegsSnapshot = await getDocs(collection(db, 'course_registrations'));
+      if (!courseRegsSnapshot.empty) {
+        setCourseRegistrations(courseRegsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as CourseRegistration[]);
       }
     } catch (error) {
       console.log('Using default data - Firebase error:', error);
@@ -346,6 +368,26 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Course Registration handlers
+  const handleDeleteCourseRegistration = async (id: string) => {
+    if (!confirm('ลบการลงทะเบียนคอร์สนี้?')) return;
+    try {
+      await deleteDoc(doc(db, 'course_registrations', id));
+      fetchData();
+    } catch (error) {
+      setCourseRegistrations(prev => prev.filter(r => r.id !== id));
+    }
+  };
+
+  const handleUpdateCourseRegistrationStatus = async (id: string, status: string) => {
+    try {
+      await updateDoc(doc(db, 'course_registrations', id), { status });
+      fetchData();
+    } catch (error) {
+      console.log('Error updating status');
+    }
+  };
+
   const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
   const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
   const lowStock = products.filter(p => p.stock <= 2).length;
@@ -472,6 +514,14 @@ export default function AdminDashboardPage() {
               }`}
             >
               📋 ลงทะเบียน ({registrations.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('course-registrations')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'course-registrations' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              🎓 ลงทะเบียนคอร์ส ({courseRegistrations.length})
             </button>
           </div>
 
@@ -1158,6 +1208,87 @@ export default function AdminDashboardPage() {
                             </a>
                             <button
                               onClick={() => reg.id && handleDeleteRegistration(reg.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                            >
+                              ลบ
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Course Registrations Tab */}
+          {activeTab === 'course-registrations' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold">🎓 ผู้ลงทะเบียนคอร์สเรียน ({courseRegistrations.length})</h2>
+              </div>
+              {courseRegistrations.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <p className="text-4xl mb-4">🎓</p>
+                  <p>ยังไม่มีผู้ลงทะเบียนคอร์สเรียน</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b text-left">
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">ผู้ปกครอง</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">นักเรียน</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">อายุ</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">คอร์ส</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">ตาราง</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">โค้ช</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">เบอร์</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">สถานะ</th>
+                        <th className="pb-4 text-sm font-bold text-gray-500 uppercase">จัดการ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {courseRegistrations.map((reg) => (
+                        <tr key={reg.id} className="border-b hover:bg-gray-50">
+                          <td className="py-4 font-bold">{reg.parentName}</td>
+                          <td className="py-4">{reg.studentName}</td>
+                          <td className="py-4">{reg.age}</td>
+                          <td className="py-4">
+                            <span className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm font-bold">
+                              {reg.program}
+                            </span>
+                          </td>
+                          <td className="py-4 text-sm text-gray-600 max-w-32">{reg.schedule}</td>
+                          <td className="py-4">
+                            <span className="text-blue-600 font-bold">{reg.coach || '-'}</span>
+                          </td>
+                          <td className="py-4">{reg.phone}</td>
+                          <td className="py-4">
+                            <select
+                              value={reg.status || 'new'}
+                              onChange={(e) => reg.id && handleUpdateCourseRegistrationStatus(reg.id, e.target.value)}
+                              className={`border rounded px-2 py-1 text-sm font-bold ${
+                                reg.status === 'confirmed' ? 'bg-green-100 text-green-600' :
+                                reg.status === 'contacted' ? 'bg-blue-100 text-blue-600' :
+                                'bg-yellow-100 text-yellow-600'
+                              }`}
+                            >
+                              <option value="new">รอติดต่อ</option>
+                              <option value="contacted">ติดต่อแล้ว</option>
+                              <option value="confirmed">ยืนยันแล้ว</option>
+                            </select>
+                          </td>
+                          <td className="py-4">
+                            <a
+                              href={`tel:${reg.phone}`}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm mr-2"
+                            >
+                              โทร
+                            </a>
+                            <button
+                              onClick={() => reg.id && handleDeleteCourseRegistration(reg.id)}
                               className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
                             >
                               ลบ
