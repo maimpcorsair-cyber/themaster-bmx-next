@@ -22,6 +22,13 @@ export default function Navbar() {
           <Link href="/programs#contact" className="bg-white text-black px-4 py-2 text-xs font-bold hover:bg-red-600 hover:text-white transition-colors uppercase tracking-wide">
             {t.nav.contact}
           </Link>
+          <Link 
+            href="/admin/dashboard" 
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 text-xs font-bold uppercase tracking-wide rounded flex items-center gap-1"
+            title="Admin Dashboard"
+          >
+            ⚙️ Admin
+          </Link>
         </nav>
         <button 
           onClick={() => setLang(lang === 'th' ? 'en' : 'th')}
