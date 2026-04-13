@@ -2,8 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { db, collection, addDoc, getDocs } from '@/lib/firebase';
+import { initFirebase } from '@/lib/firebase';
 
 const events = [
   {
@@ -69,10 +71,29 @@ export default function RustfestPage() {
     experience: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    initFirebase();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      // Save to Firebase
+      await addDoc(collection(db, 'registrations'), {
+        ...formData,
+        createdAt: new Date().toISOString(),
+        status: 'new',
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Error saving registration:', error);
+      alert('เกิดข้อผิดพลาด กรุณาลองใหม่');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -353,9 +374,12 @@ export default function RustfestPage() {
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-lg mt-6"
+                    disabled={submitting}
+                    className={`w-full font-bold py-4 rounded-lg mt-6 ${
+                      submitting ? 'bg-gray-600 text-gray-300' : 'bg-red-600 hover:bg-red-700 text-white'
+                    }`}
                   >
-                    ✅ {lang === 'th' ? 'ยืนยันการลงทะเบียน' : 'Confirm Registration'}
+                    {submitting ? '⏳ กำลังบันทึก...' : '✅ ' + (lang === 'th' ? 'ยืนยันการลงทะเบียน' : 'Confirm Registration')}
                   </button>
                 </form>
               </>
