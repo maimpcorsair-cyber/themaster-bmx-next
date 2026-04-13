@@ -225,17 +225,17 @@ export default function AdminDashboardPage() {
             <p className="text-gray-500 text-sm">Shop Management System</p>
           </div>
           <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setActiveTab('dashboard')} 
+              className={`font-bold text-sm px-3 py-1 rounded ${activeTab === 'dashboard' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              📊 Dashboard
+            </button>
             <Link href="/shop" target="_blank" className="text-gray-400 hover:text-white text-sm">
               🛒 ร้านค้า
             </Link>
             <Link href="/schedule" target="_blank" className="text-gray-400 hover:text-white text-sm">
               📅 ตารางเรียน
-            </Link>
-            <Link href="/programs" target="_blank" className="text-gray-400 hover:text-white text-sm">
-              📚 คอร์สเรียน
-            </Link>
-            <Link href="/" target="_blank" className="text-gray-400 hover:text-white text-sm">
-              🌐 เว็ปหลัก
             </Link>
             <button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-bold">
               ออก
@@ -245,6 +245,18 @@ export default function AdminDashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Breadcrumb */}
+      {activeTab !== 'dashboard' && (
+        <div className="mb-4">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1"
+          >
+            ← กลับ Dashboard
+          </button>
+        </div>
+      )}
+
         {/* Dashboard Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-6">
