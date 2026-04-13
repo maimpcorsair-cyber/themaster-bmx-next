@@ -165,6 +165,42 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Head Coach */}
+      <section className="py-20 px-6 bg-black">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-black uppercase tracking-tight mb-8 text-center">
+            {lang === 'th' ? 'โค้ชหัวหน้าทีม' : 'Head Coach'}
+          </h2>
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="w-64 h-64 flex-shrink-0">
+              <img 
+                src="/coach_jo.jpg" 
+                alt="Coach P'Jo - Head Coach" 
+                className="w-full h-full object-cover rounded-xl"
+              />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-3xl font-black text-red-500 mb-2">โค้ชพี่โจ้</h3>
+              <p className="text-lg text-gray-400 mb-4">Thailand National BMX Team</p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-center gap-3 justify-center md:justify-start">
+                  <span className="text-red-500">✓</span>
+                  {lang === 'th' ? 'อดีตนักกีฬาทีมชาติไทย' : 'Former Thai National Team Athlete'}
+                </li>
+                <li className="flex items-center gap-3 justify-center md:justify-start">
+                  <span className="text-red-500">✓</span>
+                  {lang === 'th' ? 'แชมป์ Asia Cup 5 สมัย' : '5-Time Asia Cup Champion'}
+                </li>
+                <li className="flex items-center gap-3 justify-center md:justify-start">
+                  <span className="text-red-500">✓</span>
+                  {lang === 'th' ? 'ประสบการณ์สอน 15 ปี' : '15 Years Teaching Experience'}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 px-6 bg-gradient-to-t from-gray-900 to-black">
         <div className="max-w-2xl mx-auto text-center">
