@@ -279,7 +279,7 @@ export default function AdminDashboardPage() {
 
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
-          <div className="flex border-b">
+          <div className="flex border-b flex-wrap">
             <button
               onClick={() => setActiveTab('dashboard')}
               className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
@@ -295,6 +295,14 @@ export default function AdminDashboardPage() {
               }`}
             >
               📦 สินค้า ({products.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('add-product')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'add-product' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              ➕ เพิ่มสินค้า
             </button>
             <button
               onClick={() => setActiveTab('locations')}
@@ -385,8 +393,7 @@ export default function AdminDashboardPage() {
                                 description: product.description,
                                 badge: product.badge || '',
                               });
-                              setShowProductForm(true);
-                              setActiveTab('add');
+                              setActiveTab('add-product');
                             }}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm mr-2"
                           >
@@ -408,7 +415,7 @@ export default function AdminDashboardPage() {
           )}
 
           {/* Add/Edit Product Tab */}
-          {activeTab === 'add' && (
+          {activeTab === 'add-product' && (
             <div className="p-6">
               <h2 className="text-lg font-bold mb-6">
                 {editingProduct ? '✏️ แก้ไขสินค้า' : '➕ เพิ่มสินค้าใหม่'}
@@ -502,7 +509,7 @@ export default function AdminDashboardPage() {
                   💾 บันทึก
                 </button>
                 <button
-                  onClick={() => { setShowProductForm(false); resetForm(); }}
+                  onClick={() => { resetForm(); setActiveTab('products'); }}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-lg font-bold"
                 >
                   ยกเลิก
