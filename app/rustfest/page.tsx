@@ -78,8 +78,18 @@ export default function RustfestPage() {
   return (
     <div className="min-h-screen bg-black text-white pt-20">
       {/* Hero */}
-      <section className="py-24 px-6 bg-gradient-to-b from-red-600/20 via-black to-black">
+      <section className="py-16 px-6 bg-gradient-to-b from-red-600/20 via-black to-black">
         <div className="max-w-7xl mx-auto text-center">
+          {/* RUSTFEST Logo */}
+          <div className="relative w-48 h-48 mx-auto mb-6">
+            <Image 
+              src="/rustfest_logo.jpg" 
+              alt="RUSH FEST Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
           <span className="inline-block bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-full mb-4 uppercase tracking-widest">
             RUSTFEST 2026
           </span>
