@@ -1227,6 +1227,7 @@ export default function AdminDashboardPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold">🎓 ผู้ลงทะเบียนคอร์สเรียน ({courseRegistrations.length})</h2>
+                {courseRegistrations.length > 0 && <button onClick={() => { import('xlsx').then(XLSX => { const data = courseRegistrations.map((r: any, i: number) => ({ no: i + 1, parent: r.parentName, student: r.studentName, age: r.age, phone: r.phone, course: r.program, schedule: r.schedule, coach: r.coach || '-', price: r.price, status: r.status === 'confirmed' ? 'ยืนยันแล้ว' : r.status === 'contacted' ? 'ติดต่อแล้ว' : 'รอติดต่อ', })); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Registrations'); XLSX.writeFile(wb, 'course_registrations.xlsx'); }); }} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold">📊 Export Excel</button>}
                 {courseRegistrations.length === 0 && (
                   <button
                     onClick={async () => {
