@@ -232,18 +232,19 @@ export default function ProgramsPage() {
                   </ul>
                 </div>
 
-                {/* Price & Register */}
-                <div className="mt-auto pt-4 border-t border-gray-800">
-                  <p className={`text-2xl font-bold ${program.popular ? 'text-red-500' : ''}`}>
+                {/* Price & Register - Click to open modal */}
+                <div 
+                  onClick={() => openRegister(program)}
+                  className="mt-auto pt-4 border-t border-gray-800 cursor-pointer hover:bg-gray-900 rounded-b-xl -mx-6 px-6 pb-6 transition-colors"
+                >
+                  <p className={`text-2xl font-black ${program.popular ? 'text-red-500' : ''}`}>
                     ฿{program.price.toLocaleString()}
                     <span className="text-sm font-normal text-gray-500">/{t.programs.perMonth}</span>
                   </p>
-                  <button
-                    onClick={() => openRegister(program)}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded mt-4 transition-colors"
-                  >
+                  <div className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded mt-3 text-center transition-colors">
                     ลงทะเบียนเรียน
-                  </button>
+                  </div>
+                  <p className="text-center text-gray-500 text-xs mt-2">กดเพื่อเลือกเวลาและชำระเงิน</p>
                 </div>
               </div>
             ))}
@@ -580,6 +581,37 @@ export default function ProgramsPage() {
                       placeholder="แพ้อาหาร, ต้องการยืมจักรยาน, ฯลฯ"
                     />
                   </div>
+
+                  {/* Payment Summary */}
+                  <div className="bg-red-600/20 border border-red-600 rounded-xl p-4 mt-6">
+                    <h4 className="text-sm font-bold text-red-500 mb-3 uppercase">💳 สรุปการชำระเงิน</h4>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-gray-400">คอร์ส {selectedProgram.name}</span>
+                      <span className="font-bold">฿{selectedProgram.price.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-700">
+                      <span className="text-white font-bold">รวม</span>
+                      <span className="text-xl font-black text-red-500">฿{selectedProgram.price.toLocaleString()}</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-gray-400">ช่องทางชำระเงิน:</p>
+                      <div className="flex gap-2">
+                        <div className="flex-1 bg-black border border-gray-700 rounded p-2 text-center">
+                          <p className="text-white font-bold text-xs">PromptPay</p>
+                          <p className="text-gray-500 text-xs">QR Code</p>
+                        </div>
+                        <div className="flex-1 bg-black border border-gray-700 rounded p-2 text-center">
+                          <p className="text-white font-bold text-xs">LINE Pay</p>
+                          <p className="text-gray-500 text-xs">@rushfest</p>
+                        </div>
+                        <div className="flex-1 bg-black border border-gray-700 rounded p-2 text-center">
+                          <p className="text-white font-bold text-xs">เงินสด</p>
+                          <p className="text-gray-500 text-xs">ที่สนาม</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <button
                     type="submit"
                     disabled={submitting}
