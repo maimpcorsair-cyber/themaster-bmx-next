@@ -155,6 +155,12 @@ export default function ProgramsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.schedule) {
+      alert('กรุณาเลือกตารางเรียน');
+      return;
+    }
+    
     setSubmitting(true);
     try {
       await addDoc(collection(db, 'course_registrations'), {
@@ -462,30 +468,43 @@ export default function ProgramsPage() {
                   </div>
                 </div>
 
-                {/* Schedule for this program */}
+                {/* Schedule for this program - Clickable */}
                 <div className="mb-6">
-                  <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase">📅 ตารางเรียน</h4>
+                  <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase">📅 ตารางเรียน (กดเลือก)</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {getProgramSchedule(selectedProgram.id).map((s, i) => (
-                      <div key={i} className="bg-black border border-gray-800 rounded p-2 text-center">
-                        <p className="text-white font-bold text-sm">{s.day}</p>
-                        <p className="text-gray-500 text-xs">{s.time}</p>
-                        <p className="text-gray-500 text-xs">{s.location}</p>
-                        <p className="text-green-500 text-xs font-bold">ว่าง {s.spots} ที่</p>
-                      </div>
-                    ))}
+                    {getProgramSchedule(selectedProgram.id).map((s, i) => {
+                      const isSelected = formData.schedule === `${s.day} ${s.time} (${s.location})`;
+                      return (
+                        <div 
+                          key={i} 
+                          onClick={() => setFormData({ ...formData, schedule: `${s.day} ${s.time} (${s.location})` })}
+                          className={`cursor-pointer rounded p-3 text-center transition-all ${
+                            isSelected 
+                              ? 'bg-red-600 border-2 border-red-400' 
+                              : 'bg-black border border-gray-800 hover:border-red-600'
+                          }`}
+                        >
+                          <p className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-white'}`}>{s.day}</p>
+                          <p className={`text-xs ${isSelected ? 'text-red-200' : 'text-gray-500'}`}>{s.time}</p>
+                          <p className={`text-xs ${isSelected ? 'text-red-200' : 'text-gray-500'}`}>{s.location}</p>
+                          <p className={`text-xs font-bold mt-1 ${isSelected ? 'text-white' : 'text-green-500'}`}>
+                            {isSelected ? '✓ เลือกแล้ว' : `ว่าง ${s.spots} ที่`}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Coach */}
+                {/* Coach - Display only */}
                 <div className="mb-6">
                   <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase">🏆 โค้ชผู้สอน</h4>
                   <div className="flex gap-4">
                     {coaches.map((coach, i) => (
-                      <div key={i} className="flex items-center gap-2 bg-black border border-gray-800 rounded p-2">
-                        <img src={coach.image} alt={coach.name} className="w-10 h-10 rounded-full object-cover" />
+                      <div key={i} className="flex items-center gap-3 bg-black border border-gray-800 rounded p-3">
+                        <img src={coach.image} alt={coach.name} className="w-12 h-12 rounded-full object-cover" />
                         <div>
-                          <p className="text-white text-sm font-bold">{coach.name}</p>
+                          <p className="text-white font-bold">{coach.name}</p>
                           <p className="text-gray-500 text-xs">{t.coaches[coach.titleKey]}</p>
                         </div>
                       </div>
@@ -557,20 +576,12 @@ export default function ProgramsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-400 mb-2">เลือกตารางเรียน *</label>
-                    <select
-                      required
-                      value={formData.schedule}
-                      onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
-                      className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
-                    >
-                      <option value="">เลือกวันและเวลา...</option>
-                      {getProgramSchedule(selectedProgram.id).map((s, i) => (
-                        <option key={i} value={`${s.day} ${s.time} (${s.location})`}>
-                          {s.day} {s.time} - {s.location} (ว่าง {s.spots} ที่)
-                        </option>
-                      ))}
-                    </select>
+                    <label className="block text-sm font-bold text-gray-400 mb-2">ตารางที่เลือก</label>
+                    <div className={`px-4 py-3 rounded-lg border ${
+                      formData.schedule ? 'bg-red-600/20 border-red-600 text-white' : 'bg-black border-gray-700 text-gray-500'
+                    }`}>
+                      {formData.schedule || 'กรุณากดเลือกตารางเรียนด้านบน'}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-400 mb-2">หมายเหตุ</label>
