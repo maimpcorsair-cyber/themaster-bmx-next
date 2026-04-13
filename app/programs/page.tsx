@@ -2,7 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { db, collection, addDoc, getDocs } from '@/lib/firebase';
+import { initFirebase } from '@/lib/firebase';
 
 const programs = [
   {
@@ -86,8 +89,97 @@ const coaches = [
   },
 ];
 
+interface ScheduleItem {
+  day: string;
+  time: string;
+  location: string;
+  spots: string;
+}
+
 export default function ProgramsPage() {
   const { t, lang } = useLanguage();
+  const [selectedProgram, setSelectedProgram] = useState<typeof programs[0] | null>(null);
+  const [showRegister, setShowRegister] = useState(false);
+  const [formData, setFormData] = useState({
+    parentName: '',
+    studentName: '',
+    age: '',
+    phone: '',
+    line: '',
+    program: '',
+    schedule: '',
+    note: '',
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [scheduleData, setScheduleData] = useState<ScheduleItem[]>([]);
+
+  useEffect(() => {
+    initFirebase();
+    fetchSchedule();
+  }, []);
+
+  const fetchSchedule = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, 'schedule'));
+      if (!snapshot.empty) {
+        setScheduleData(snapshot.docs.map(doc => doc.data() as ScheduleItem));
+      } else {
+        // Default schedule
+        setScheduleData([
+          { day: 'จันทร์', time: '15:00-16:30', location: 'รัชดา', spots: '10' },
+          { day: 'อังคาร', time: '15:00-16:30', location: 'รัชดา', spots: '10' },
+          { day: 'พุธ', time: '15:00-16:30', location: 'รัชดา', spots: '10' },
+          { day: 'พฤหัสบดี', time: '15:00-16:30', location: 'รัชดา', spots: '10' },
+          { day: 'ศุกร์', time: '15:00-16:30', location: 'รัชดา', spots: '10' },
+          { day: 'เสาร์', time: '09:00-10:30', location: 'บางแค', spots: '10' },
+          { day: 'เสาร์', time: '10:30-12:00', location: 'บางแค', spots: '12' },
+          { day: 'อาทิตย์', time: '09:00-10:30', location: 'บางแค', spots: '10' },
+          { day: 'อาทิตย์', time: '10:30-12:00', location: 'บางแค', spots: '12' },
+        ]);
+      }
+    } catch (error) {
+      console.log('Error fetching schedule');
+    }
+  };
+
+  const openRegister = (program: typeof programs[0]) => {
+    setSelectedProgram(program);
+    setFormData({
+      ...formData,
+      program: program.name,
+    });
+    setShowRegister(true);
+    setSubmitted(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await addDoc(collection(db, 'course_registrations'), {
+        ...formData,
+        price: selectedProgram?.price,
+        createdAt: new Date().toISOString(),
+        status: 'new',
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('เกิดข้อผิดพลาด');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const getProgramSchedule = (programId: string) => {
+    return scheduleData.filter(s => {
+      if (programId === 'little') return ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์'].includes(s.day);
+      if (programId === 'junior') return ['เสาร์', 'อาทิตย์'].includes(s.day);
+      if (programId === 'competitor') return ['เสาร์', 'อาทิตย์'].includes(s.day);
+      return true;
+    });
+  };
 
   return (
     <div className="min-h-screen bg-black text-white pt-20">
@@ -106,7 +198,7 @@ export default function ProgramsPage() {
             {programs.map((program) => (
               <div 
                 key={program.id}
-                className={`bg-black border ${program.popular ? 'border-red-600' : 'border-gray-800'} hover:${program.popular ? '' : 'border-white'} transition-all p-6 flex flex-col`}
+                className={`bg-black border ${program.popular ? 'border-red-600' : 'border-gray-800'} transition-all p-6 flex flex-col`}
               >
                 {program.popular && (
                   <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 self-start mb-3">
@@ -140,12 +232,18 @@ export default function ProgramsPage() {
                   </ul>
                 </div>
 
-                {/* Price */}
+                {/* Price & Register */}
                 <div className="mt-auto pt-4 border-t border-gray-800">
                   <p className={`text-2xl font-bold ${program.popular ? 'text-red-500' : ''}`}>
                     ฿{program.price.toLocaleString()}
                     <span className="text-sm font-normal text-gray-500">/{t.programs.perMonth}</span>
                   </p>
+                  <button
+                    onClick={() => openRegister(program)}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded mt-4 transition-colors"
+                  >
+                    ลงทะเบียนเรียน
+                  </button>
                 </div>
               </div>
             ))}
@@ -318,6 +416,185 @@ export default function ProgramsPage() {
           </div>
         </div>
       </section>
+
+      {/* Registration Modal */}
+      {showRegister && selectedProgram && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80" onClick={() => { setShowRegister(false); setSubmitted(false); }} />
+          <div className="relative bg-gray-900 rounded-2xl w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
+            <button 
+              onClick={() => { setShowRegister(false); setSubmitted(false); }}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white text-2xl"
+            >
+              ✕
+            </button>
+
+            {submitted ? (
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">✅</div>
+                <h3 className="text-2xl font-black mb-2">ลงทะเบียนสำเร็จ!</h3>
+                <p className="text-gray-400 mb-6">
+                  ขอบคุณที่สมัคร {selectedProgram.name} เราจะติดต่อกลับเร็วๆ นี้
+                </p>
+                <a 
+                  href="https://line.me/R/ti/p/@rushfest" 
+                  target="_blank"
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full inline-block"
+                >
+                  📱 เพิ่ม LINE @rushfest
+                </a>
+              </div>
+            ) : (
+              <>
+                {/* Program Info */}
+                <div className="bg-black rounded-xl p-4 mb-6 border border-gray-800">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-xs text-gray-500 uppercase">{selectedProgram.age}</span>
+                      <h3 className="text-xl font-bold text-red-500">{selectedProgram.name}</h3>
+                      <p className="text-gray-400 text-sm">{selectedProgram.desc}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-black">฿{selectedProgram.price.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">/เดือน</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schedule for this program */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase">📅 ตารางเรียน</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {getProgramSchedule(selectedProgram.id).map((s, i) => (
+                      <div key={i} className="bg-black border border-gray-800 rounded p-2 text-center">
+                        <p className="text-white font-bold text-sm">{s.day}</p>
+                        <p className="text-gray-500 text-xs">{s.time}</p>
+                        <p className="text-gray-500 text-xs">{s.location}</p>
+                        <p className="text-green-500 text-xs font-bold">ว่าง {s.spots} ที่</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Coach */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase">🏆 โค้ชผู้สอน</h4>
+                  <div className="flex gap-4">
+                    {coaches.map((coach, i) => (
+                      <div key={i} className="flex items-center gap-2 bg-black border border-gray-800 rounded p-2">
+                        <img src={coach.image} alt={coach.name} className="w-10 h-10 rounded-full object-cover" />
+                        <div>
+                          <p className="text-white text-sm font-bold">{coach.name}</p>
+                          <p className="text-gray-500 text-xs">{t.coaches[coach.titleKey]}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Form */}
+                <h4 className="text-lg font-bold mb-4">📝 ลงทะเบียนเรียน</h4>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-400 mb-2">ชื่อผู้ปกครอง *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.parentName}
+                        onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
+                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                        placeholder="เช่น สมชาย ใจดี"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-400 mb-2">ชื่อนักเรียน *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.studentName}
+                        onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
+                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                        placeholder="เช่น สมศรี ใจดี"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-400 mb-2">อายุนักเรียน *</label>
+                      <input
+                        type="number"
+                        required
+                        min="4"
+                        max="50"
+                        value={formData.age}
+                        onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                        placeholder="เช่น 8"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-400 mb-2">เบอร์โทร *</label>
+                      <input
+                        type="tel"
+                        required
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                        placeholder="088-xxx-xxxx"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-400 mb-2">LINE ID</label>
+                    <input
+                      type="text"
+                      value={formData.line}
+                      onChange={(e) => setFormData({ ...formData, line: e.target.value })}
+                      className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                      placeholder="@rushfest"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-400 mb-2">เลือกตารางเรียน *</label>
+                    <select
+                      required
+                      value={formData.schedule}
+                      onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
+                      className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600"
+                    >
+                      <option value="">เลือกวันและเวลา...</option>
+                      {getProgramSchedule(selectedProgram.id).map((s, i) => (
+                        <option key={i} value={`${s.day} ${s.time} (${s.location})`}>
+                          {s.day} {s.time} - {s.location} (ว่าง {s.spots} ที่)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-400 mb-2">หมายเหตุ</label>
+                    <textarea
+                      value={formData.note}
+                      onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                      className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-red-600 h-20"
+                      placeholder="แพ้อาหาร, ต้องการยืมจักรยาน, ฯลฯ"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className={`w-full font-bold py-4 rounded-lg mt-6 ${
+                      submitting ? 'bg-gray-600 text-gray-300' : 'bg-red-600 hover:bg-red-700 text-white'
+                    }`}
+                  >
+                    {submitting ? '⏳ กำลังบันทึก...' : '✅ ยืนยันลงทะเบียน'}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
