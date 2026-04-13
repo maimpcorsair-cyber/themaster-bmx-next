@@ -13,6 +13,26 @@ export default function AdminProductsPage() {
   const [activeTab, setActiveTab] = useState<'products' | 'promotions'>('products');
   const [loading, setLoading] = useState(true);
   
+  // Header with back button
+  const Header = () => (
+    <header className="bg-gray-900 text-white px-6 py-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/admin/dashboard" className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded font-bold text-sm">
+            ← กลับ Dashboard
+          </Link>
+          <div>
+            <h1 className="text-xl font-black uppercase">Admin Products (Legacy)</h1>
+            <p className="text-gray-500 text-sm">ใช้ Dashboard ใหม่แทน</p>
+          </div>
+        </div>
+        <Link href="/admin/dashboard" className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-bold">
+          🏠 Dashboard ใหม่
+        </Link>
+      </div>
+    </header>
+  );
+  
   // New product form
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -154,26 +174,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-black uppercase">Admin Dashboard</h1>
-            <p className="text-gray-500 text-sm">จัดการสินค้าและโปรโมชั่น</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="text-gray-500 hover:text-white text-sm">
-              ตารางเรียน
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-bold"
-            >
-              ออกจากระบบ
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Tabs */}
       <div className="bg-gray-900 border-b border-gray-800">
