@@ -215,7 +215,7 @@ export default function ShopPage() {
             {allProducts.map((product) => {
               const stockInfo = getStockDisplay(product.stock || 0);
               return (
-                <div key={product.id} className="bg-white text-black rounded-xl overflow-hidden group hover:shadow-xl transition-all">
+                <Link href={`/shop/${product.id}`} key={product.id} className="bg-white text-black rounded-xl overflow-hidden group hover:shadow-xl transition-all block">
                   <div className="relative aspect-square bg-gray-100">
                     <Image 
                       src={product.image} 
@@ -253,7 +253,7 @@ export default function ShopPage() {
                       {stockInfo.text}
                     </div>
                     <button
-                      onClick={() => addToCart(product.id)}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product.id); }}
                       disabled={product.stock === 0}
                       className={`w-full mt-3 py-2 rounded font-bold text-sm transition-all ${
                         product.stock === 0
@@ -270,7 +270,7 @@ export default function ShopPage() {
                           : lang === 'th' ? 'เพิ่มลงตะกร้า' : 'Add to Cart'}
                     </button>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
