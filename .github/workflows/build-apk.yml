@@ -26,42 +26,32 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Setup Capacitor
-        run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          rm -f capacitor.config.js
-          npx cap init "The Master BMX" "com.themaster.bmx" --web-dir=.next
-          npx cap add android
-
-      - name: Copy web assets to static
-        run: |
-          mkdir -p out
-          cp -r .next/out/* out/ 2>/dev/null || cp -r .next/static out/ 2>/dev/null || true
-          cp .next/index.html out/ 2>/dev/null || true
-          # Copy all next static files
-          find .next -name "*.html" -exec cp {} out/ \; 2>/dev/null || true
-
-      - name: Ensure index.html exists
-        run: |
-          if [ ! -f out/index.html ]; then
-            cp .next/server/pages/index.html out/ 2>/dev/null || \
-            echo '<!DOCTYPE html><html><head></head><body></body></html>' > out/index.html
-          fi
-
-      - name: Sync Capacitor
-        run: |
-          npx cap copy android
-          npx cap sync android
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Build APK
+      - name: Build Android APK with Next.js
         run: |
+          # Install Capacitor and Android
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          
+          # Remove any old capacitor config if exists
+          rm -f capacitor.config.js
+          
+          # Initialize Capacitor with webDir pointing to .next
+          npx cap init "The Master BMX" "com.themaster.bmx" --web-dir=.next
+          
+          # Add Android platform
+          npx cap add android
+          
+          # Copy web assets
+          npx cap copy android
+          
+          # Build APK
           cd android
+          chmod +x gradlew
           ./gradlew assembleDebug --no-daemon 2>&1
 
       - name: Upload APK
@@ -72,9 +62,10 @@ jobs:
 
       - name: Create Release
         if: github.event_name == 'push'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: android/app/build/outputs/apk/debug/app-debug.apk
           tag_name: v1.0.0
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
