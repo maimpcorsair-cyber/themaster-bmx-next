@@ -23,6 +23,9 @@ export default function Navbar() {
           <Link href="/schedule" className="text-xs font-medium hover:text-red-500 transition-colors uppercase tracking-wide">{t.nav.schedule}</Link>
           <Link href="/rustfest" className="text-xs font-medium hover:text-red-500 transition-colors uppercase tracking-wide">RUSTFEST</Link>
           <Link href="/shop" className="text-xs font-medium hover:text-red-500 transition-colors uppercase tracking-wide">{t.nav.shop}</Link>
+          <Link href="/download" className="text-xs font-bold text-green-500 hover:text-green-400 transition-colors uppercase tracking-wide flex items-center gap-1">
+            ⬇️ {lang === 'th' ? 'ดาวน์โหลดแอพ' : 'Download App'}
+          </Link>
           <Link href="/about" className="text-xs font-medium hover:text-red-500 transition-colors uppercase tracking-wide">{t.nav.about}</Link>
           <Link href="/programs#contact" className="bg-white text-black px-4 py-2 text-xs font-bold hover:bg-red-600 hover:text-white transition-colors uppercase tracking-wide">
             {t.nav.contact}
@@ -77,6 +80,9 @@ export default function Navbar() {
             <Link href="/schedule" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium hover:text-red-500 transition-colors uppercase tracking-wide py-2 px-3 hover:bg-gray-900 rounded">{t.nav.schedule}</Link>
             <Link href="/rustfest" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium hover:text-red-500 transition-colors uppercase tracking-wide py-2 px-3 hover:bg-gray-900 rounded">RUSTFEST</Link>
             <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium hover:text-red-500 transition-colors uppercase tracking-wide py-2 px-3 hover:bg-gray-900 rounded">{t.nav.shop}</Link>
+            <Link href="/download" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-green-500 hover:text-green-400 transition-colors uppercase tracking-wide py-2 px-3 hover:bg-gray-900 rounded flex items-center gap-2">
+              ⬇️ {lang === 'th' ? 'ดาวน์โหลดแอพ' : 'Download App'}
+            </Link>
             <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium hover:text-red-500 transition-colors uppercase tracking-wide py-2 px-3 hover:bg-gray-900 rounded">{t.nav.about}</Link>
             <Link href="/programs#contact" onClick={() => setMobileMenuOpen(false)} className="bg-white text-black px-3 py-2 text-sm font-bold hover:bg-red-600 hover:text-white transition-colors uppercase tracking-wide rounded mt-2 text-center">{t.nav.contact}</Link>
             <Link href="/admin/dashboard" onClick={() => setMobileMenuOpen(false)} className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 text-sm font-bold uppercase tracking-wide rounded mt-2 text-center flex items-center justify-center gap-2">⚙️ Admin</Link>
