@@ -129,6 +129,7 @@ export default function AdminDashboardPage() {
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [courseRegistrations, setCourseRegistrations] = useState<CourseRegistration[]>([]);
+  const [appRegistrations, setAppRegistrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Schedule form state
@@ -221,6 +222,11 @@ export default function AdminDashboardPage() {
       const courseRegsSnapshot = await getDocs(collection(db, 'course_registrations'));
       if (!courseRegsSnapshot.empty) {
         setCourseRegistrations(courseRegsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as CourseRegistration[]);
+      }
+
+      const appRegsSnapshot = await getDocs(collection(db, 'app_registrations'));
+      if (!appRegsSnapshot.empty) {
+        setAppRegistrations(appRegsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
       }
     } catch (error) {
       console.log('Using default data - Firebase error:', error);
@@ -522,6 +528,14 @@ export default function AdminDashboardPage() {
               }`}
             >
               🎓 ลงทะเบียนคอร์ส ({courseRegistrations.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('app-registrations')}
+              className={`px-6 py-4 font-bold text-sm uppercase tracking-wider ${
+                activeTab === 'app-registrations' ? 'bg-red-600 text-white' : 'hover:bg-gray-50'
+              }`}
+            >
+              📱 App ลงทะเบียน ({appRegistrations.length})
             </button>
           </div>
 
@@ -1335,6 +1349,66 @@ export default function AdminDashboardPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* App Registrations Tab */}
+          {activeTab === 'app-registrations' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold">📱 ผู้ลงทะเบียนจาก App ({appRegistrations.length})</h2>
+              </div>
+              {appRegistrations.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <p className="text-4xl mb-4">📱</p>
+                  <p>ยังไม่มีผู้ลงทะเบียนจาก App</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {appRegistrations.map((reg) => (
+                    <div key={reg.id} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start gap-4">
+                        {reg.photoUrl ? (
+                          <img src={reg.photoUrl} alt={reg.studentName} className="w-16 h-16 rounded-xl object-cover" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl bg-gray-200 flex items-center justify-center text-2xl">
+                            👤
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-lg">{reg.studentName}</h3>
+                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                              reg.status === 'confirmed' ? 'bg-green-100 text-green-600' :
+                              reg.status === 'contacted' ? 'bg-blue-100 text-blue-600' :
+                              'bg-yellow-100 text-yellow-600'
+                            }`}>
+                              {reg.status === 'confirmed' ? 'ยืนยันแล้ว' : reg.status === 'contacted' ? 'ติดต่อแล้ว' : 'รอติดต่อ'}
+                            </span>
+                          </div>
+                          <p className="text-gray-500 text-sm mb-2">📱 {reg.phone} {reg.age ? `• ${reg.age}` : ''}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm font-bold">
+                              {reg.program?.toUpperCase() || '-'}
+                            </span>
+                          </div>
+                          <p className="text-gray-400 text-xs mt-2">
+                            ลงทะเบียนเมื่อ: {reg.createdAt ? new Date(reg.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <a
+                            href={`tel:${reg.phone}`}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold"
+                          >
+                            📞 โทร
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
