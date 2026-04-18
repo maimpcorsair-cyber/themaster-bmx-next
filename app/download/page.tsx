@@ -10,7 +10,7 @@ export default function DownloadPage() {
 
   useEffect(() => {
     // Get latest release APK URL from GitHub
-    fetch('https://api.github.com/repos/maimpcorsair-cyber/themaster-bmx-next/releases/latest')
+    fetch('https://api.github.com/repos/maimpcorsair-cyber/themaster-bmx-app/releases/latest')
       .then(res => res.json())
       .then(data => {
         if (data.assets) {
