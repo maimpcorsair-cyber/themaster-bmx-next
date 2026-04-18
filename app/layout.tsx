@@ -3,10 +3,16 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import ChatWidget from "@/components/ChatWidget";
+import DownloadApp from "@/components/DownloadApp";
 
 export const metadata: Metadata = {
   title: "The Master BMX | BMX School Thailand 2026",
   description: "Learn BMX from national team coaches. Programs for kids 4-15 years old. Racing & Freestyle training at skate parks in Bangkok.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon.svg",
+    apple: "/icons/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -30,6 +36,7 @@ export default function RootLayout({
               <p className="text-gray-500 text-sm uppercase tracking-wide">© 2026 The Master BMX.</p>
             </div>
           </footer>
+          <DownloadApp />
           <ChatWidget />
         </LanguageProvider>
       </body>
